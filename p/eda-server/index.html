@@ -88,29 +88,18 @@ portal作为NTP server,提供定时服务给到10.0.2.0/24网段</p><div class=h
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>search ic.X.com
 </span></span><span class=line><span class=cl>nameserver 10.0.2.100
 </span></span></code></pre></td></tr></table></div></div><p>这里再次吐槽NetworkManager,默认是会去把这个文件给overwrite掉的，需要做一些额外处理。或者就像我一样，不管三七二十一，直接把NetworkManager给干了。
-一个典型的查询场景如下所示，需要注意的是如果查询的域名位于ic.X.com，那直接在core就会返回查询结果。</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
-</span><span class=lnt> 2
-</span><span class=lnt> 3
-</span><span class=lnt> 4
-</span><span class=lnt> 5
-</span><span class=lnt> 6
-</span><span class=lnt> 7
-</span><span class=lnt> 8
-</span><span class=lnt> 9
-</span><span class=lnt>10
-</span><span class=lnt>11
-</span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-fallback data-lang=fallback><span class=line><span class=cl>sequenceDiagram
-</span></span><span class=line><span class=cl>  participant grid00
-</span></span><span class=line><span class=cl>  participant core
-</span></span><span class=line><span class=cl>  participant portal
-</span></span><span class=line><span class=cl>  participant public_dns
-</span></span><span class=line><span class=cl>  grid00 -&gt;&gt; core: DNS query for www.baidu.com
-</span></span><span class=line><span class=cl>  core -&gt;&gt; portal: forward the query
-</span></span><span class=line><span class=cl>  portal -&gt;&gt; public_dns: forward the query
-</span></span><span class=line><span class=cl>  public_dns -&gt;&gt; portal: query result for www.baidu.com
-</span></span><span class=line><span class=cl>  portal -&gt;&gt; core: query result for www.baidu.com
-</span></span><span class=line><span class=cl>  core -&gt;&gt; grid00: query result for www.baidu.com
-</span></span></code></pre></td></tr></table></div></div><h3 id=nfs-挂载>NFS 挂载</h3><p>将netapp的目录以NFS的方式挂载到各台机器上，建议挂载分区如下</p><ul><li>/proj: 项目相关的文件</li><li>/tools: EDA工具</li><li>/tmpdir: 临时目录，比如仿真文件等</li><li>/home: 用户主目录</li><li>/opt/sge: sungrid的共享目录，其实严格意义上来说只有SGE_CELL那个路径才需要共享，但是都共享了也没太大问题</li></ul><h3 id=sungrid>sungrid</h3><p>sungrid是一个开源的集群运算软件，在core上执行</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+一个典型的查询场景如下所示，需要注意的是如果查询的域名位于ic.X.com，那直接在core就会返回查询结果。</p><pre class=mermaid>sequenceDiagram
+  participant grid00
+  participant core
+  participant portal
+  participant public_dns
+  grid00 ->> core: DNS query for www.baidu.com
+  core ->> portal: forward the query
+  portal ->> public_dns: forward the query
+  public_dns ->> portal: query result for www.baidu.com
+  portal ->> core: query result for www.baidu.com
+  core ->> grid00: query result for www.baidu.com
+</pre><h3 id=nfs-挂载>NFS 挂载</h3><p>将netapp的目录以NFS的方式挂载到各台机器上，建议挂载分区如下</p><ul><li>/proj: 项目相关的文件</li><li>/tools: EDA工具</li><li>/tmpdir: 临时目录，比如仿真文件等</li><li>/home: 用户主目录</li><li>/opt/sge: sungrid的共享目录，其实严格意义上来说只有SGE_CELL那个路径才需要共享，但是都共享了也没太大问题</li></ul><h3 id=sungrid>sungrid</h3><p>sungrid是一个开源的集群运算软件，在core上执行</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>yum install -y jemalloc gridengine gridengine-execd gridengine-guiinst gridengine-qmaster gridengine-qmon
 </span></span></code></pre></td></tr></table></div></div><p>然后通过如下命令启动图形安装界面</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=nb>cd</span> /opt/sge <span class=o>&amp;&amp;</span> ./start_gui_installer
@@ -480,4 +469,7 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
 <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button><div class=pswp__preloader><div class=pswp__preloader__icn><div class=pswp__preloader__cut><div class=pswp__preloader__donut></div></div></div></div></div><div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap"><div class=pswp__share-tooltip></div></div><button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
 </button>
-<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script></body></html>
+<button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)"></button><div class=pswp__caption><div class=pswp__caption__center></div></div></div></div></div><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo=" crossorigin=anonymous defer></script><script src=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU=" crossorigin=anonymous defer></script><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css crossorigin=anonymous><link rel=stylesheet href=https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css crossorigin=anonymous></main></div><script src=https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z+KMkF24hUW8WePSA9HM=" crossorigin=anonymous></script><script type=text/javascript src=/ts/main.js defer></script><script>(function(){const e=document.createElement("link");e.href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap",e.type="text/css",e.rel="stylesheet",document.head.appendChild(e)})()</script><script type=module>
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({ startOnLoad: true });
+  </script></body></html>

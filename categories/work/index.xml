@@ -155,35 +155,19 @@ portal作为NTP server,提供定时服务给到10.0.2.0/24网段&lt;/p>
 &lt;/div>
 &lt;/div>&lt;p>这里再次吐槽NetworkManager,默认是会去把这个文件给overwrite掉的，需要做一些额外处理。或者就像我一样，不管三七二十一，直接把NetworkManager给干了。
 一个典型的查询场景如下所示，需要注意的是如果查询的域名位于ic.X.com，那直接在core就会返回查询结果。&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">sequenceDiagram
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> participant grid00
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> participant core
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> participant portal
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> participant public_dns
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> grid00 -&amp;gt;&amp;gt; core: DNS query for www.baidu.com
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> core -&amp;gt;&amp;gt; portal: forward the query
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> portal -&amp;gt;&amp;gt; public_dns: forward the query
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> public_dns -&amp;gt;&amp;gt; portal: query result for www.baidu.com
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> portal -&amp;gt;&amp;gt; core: query result for www.baidu.com
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> core -&amp;gt;&amp;gt; grid00: query result for www.baidu.com
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="nfs-挂载">NFS 挂载&lt;/h3>
+&lt;pre class="mermaid">sequenceDiagram
+participant grid00
+participant core
+participant portal
+participant public_dns
+grid00 ->> core: DNS query for www.baidu.com
+core ->> portal: forward the query
+portal ->> public_dns: forward the query
+public_dns ->> portal: query result for www.baidu.com
+portal ->> core: query result for www.baidu.com
+core ->> grid00: query result for www.baidu.com
+&lt;/pre>
+&lt;h3 id="nfs-挂载">NFS 挂载&lt;/h3>
 &lt;p>将netapp的目录以NFS的方式挂载到各台机器上，建议挂载分区如下&lt;/p>
 &lt;ul>
 &lt;li>/proj: 项目相关的文件&lt;/li>
