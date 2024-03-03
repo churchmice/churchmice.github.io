@@ -24,7 +24,22 @@
 配置网卡的时候一些注意事项&lt;/p>
 &lt;ul>
 &lt;li>NetworkManager的影响: 如果是直接修改 /etc/sysconfig/network-scripts的方式进行配置的话，记得里面加一行 &lt;strong>NM_CONTROLLED=no&lt;/strong> ,或者干脆就把NetworkManger卸载掉得了&lt;/li>
-&lt;li>网卡的名字: 默认的名字总是奇奇怪怪，早起的叫ethX,后来变成emX,如果是光口，名字可能叫做p1p2这种，这种名字可以在ifcfg-&lt;em>xx&lt;/em> 里面进行修改&lt;/li>
+&lt;li>网卡的名字: 默认的名字总是奇奇怪怪，早起的叫ethX,后来变成emX,如果是光口，名字可能叫做p1p2这种，这种名字可以在ifcfg-&lt;em>xx&lt;/em> 里面进行修改
+可以使用以下命令对网卡名字做动态修改&lt;/li>
+&lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">ip link set old_device_name name new_device_name
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>如果是要静态修改的话需要对ifcfg-xx做以下修改&lt;/p>
+&lt;ul>
+&lt;li>将ifcfg_old_name重命名为ifcfg_new_name&lt;/li>
+&lt;li>将文件里面的DEVICE和NAME修改为new_name&lt;/li>
+&lt;li>HWADDR需要修改成网卡的真实地址&lt;/li>
 &lt;/ul>
 &lt;h3 id="core">core&lt;/h3>
 &lt;p>网卡 int: ip 配置成10.0.2.100
@@ -140,7 +155,49 @@ portal作为NTP server,提供定时服务给到10.0.2.0/24网段&lt;/p>
 &lt;p>在IPA server的安装过程中，会将产生的root CA放在/root/cacert.p12下面，可以用&lt;a class="link" href="https://hohnstaedt.de/xca/" target="_blank" rel="noopener"
 >xca&lt;/a> 导入进行管理，以后可以用这个root CA签名新的证书。导入过程中会提示你输入密码，这个密码就是安装过程中输入的admin password。
 都已经2024年了，推荐所有的服务都上https&lt;/p>
-&lt;h3 id="dns-解析">DNS 解析&lt;/h3>
+&lt;p>IPA的管理界面默认会占用80/443/8080/8443端口，请避免和其他服务冲突
+windows电脑登录的时候会跳出一个认证框，这是因为windows支持kerbose login, 可以通过在 /etc/httpd/conf.d/ipa.conf 里面添加如下配置禁用&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">GssapiSessionKey&lt;/span> file:/etc/httpd/alias/ipasession.key
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">BrowserMatch&lt;/span> Windows gssapi-no-negotiate
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="常见操作">常见操作&lt;/h4>
+&lt;h5 id="增加一个dns解析">增加一个DNS解析&lt;/h5>
+&lt;p>如果你只是想增加一个DNS解析的话，可以使用下面的命令（将gitlab.ic.X.com解析成10.0.2.100）&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">ipa dnsrecord-add ic.X.com. --name gitlab --a-rec 10.0.2.100
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h5 id="缓存刷新">缓存刷新&lt;/h5>
+&lt;p>刷新IPA缓存&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">sss_cache -E
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>刷新系统缓存&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">systemctl restart sssd
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="dns-解析">DNS 解析&lt;/h3>
 &lt;p>在portal上面安装dnsmasq并指定上游，例如 114
 修改所有机器的 /etc/resolv.conf&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -167,15 +224,51 @@ public_dns ->> portal: query result for www.baidu.com
 portal ->> core: query result for www.baidu.com
 core ->> grid00: query result for www.baidu.com
 &lt;/pre>
-&lt;h3 id="nfs-挂载">NFS 挂载&lt;/h3>
+&lt;h3 id="netapp-1">netapp&lt;/h3>
 &lt;p>将netapp的目录以NFS的方式挂载到各台机器上，建议挂载分区如下&lt;/p>
 &lt;ul>
 &lt;li>/proj: 项目相关的文件&lt;/li>
 &lt;li>/tools: EDA工具&lt;/li>
 &lt;li>/tmpdir: 临时目录，比如仿真文件等&lt;/li>
 &lt;li>/home: 用户主目录&lt;/li>
-&lt;li>/opt/sge: sungrid的共享目录，其实严格意义上来说只有SGE_CELL那个路径才需要共享，但是都共享了也没太大问题&lt;/li>
+&lt;li>/opt/sge: sungrid的共享目录，其实严格意义上来说只有SGE_CELL那个路径才需要共享，但是都共享了也没太大问题。直接用core分享也可以
+需要注意的是netapp默认的nfs4版本会进行root_squash,导致root账号被映射成了nobody,解决办法是在挂载的时候选择用nfs3挂载&lt;/li>
 &lt;/ul>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">10&lt;/span>.&lt;span class="err">0&lt;/span>.&lt;span class="err">2&lt;/span>.&lt;span class="err">155:/&lt;/span>&lt;span class="nb">home&lt;/span> &lt;span class="sx">/home&lt;/span> nfs defaults,async,nosuid,nodev,hard,intr,nfsvers=3,timeo=60,retrans=5 &lt;span class="m">0&lt;/span> &lt;span class="m">0&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>netapp如果要关系，需要使用以下命令,要防止主node被backup node给take over掉&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">system node halt -node * -skip-lif-migration-before-shutdown &lt;span class="nb">true&lt;/span> -ignore-quorum-warnings &lt;span class="nb">true&lt;/span> -inhibit-takeover &lt;span class="nb">true&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="gcc">gcc&lt;/h3>
+&lt;p>系统如果要安装多个gcc版本，建议下载源码解压之后用如下方式进行编译&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">./contrib/download_prerequisites
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir build &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">cd&lt;/span> build
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">../configure --prefix&lt;span class="o">=&lt;/span>/tools/misc/gcc/xx.xx.xx --enable-checking&lt;span class="o">=&lt;/span>release --enable-languages&lt;span class="o">=&lt;/span>c,c++ --enable-threads&lt;span class="o">=&lt;/span>posix --disable-multilib --with-system-zlib
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make -j64 &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> make install
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>版本之间的切换可以用 &lt;a class="link" href="https://modules.readthedocs.io/en/latest/" target="_blank" rel="noopener"
+>modules&lt;/a> 进行管理。&lt;/p>
 &lt;h3 id="sungrid">sungrid&lt;/h3>
 &lt;p>sungrid是一个开源的集群运算软件，在core上执行&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -213,16 +306,25 @@ core ->> grid00: query result for www.baidu.com
 &lt;/span>&lt;span class="lnt">10
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl"> git_data_dirs&lt;span class="o">({&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;default&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span>&amp;gt; &lt;span class="o">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;path&amp;#34;&lt;/span> &lt;span class="o">=&lt;/span>&amp;gt; &lt;span class="s2">&amp;#34;/proj/git&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="o">})&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">gitlab_rails&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;manage_backup_path&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="nb">true&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> gitlab_rails&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;backup_path&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;/data/backup/gitlab&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> gitlab_rails&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;backup_gitaly_backup_path&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;/opt/gitlab/embedded/bin/gitaly-backup&amp;#34;&lt;/span>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-ruby" data-lang="ruby">&lt;span class="line">&lt;span class="cl"> &lt;span class="n">git_data_dirs&lt;/span>&lt;span class="p">({&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;default&amp;#34;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;path&amp;#34;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s2">&amp;#34;/proj/git&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">})&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;manage_backup_path&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kp">true&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;backup_path&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;/data/backup/gitlab&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;backup_gitaly_backup_path&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;/opt/gitlab/embedded/bin/gitaly-backup&amp;#34;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> gitlab_rails&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;backup_keep_time&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="m">2592000&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;backup_keep_time&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">2592000&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>对gitlab.rb的内容进行更改之后，需要通过如下命令进行配置刷新&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gitlab-ctl reconfigure
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h4 id="ssl">ssl&lt;/h4>
@@ -240,6 +342,23 @@ core ->> grid00: query result for www.baidu.com
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">nginx&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;ssl_certificate_key&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;/etc/ssl/ic.X.com/server.key&amp;#34;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">external_url&lt;/span> &lt;span class="s1">&amp;#39;https://core.ic.X.com&amp;#39;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">nginx&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;listen_port&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1024&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>可以通过下面的rewrite rule将 &lt;a class="link" href="https://git.ic.X.com" target="_blank" rel="noopener"
+>https://git.ic.X.com&lt;/a> 重定向到 &lt;a class="link" href="https://core.ic.X.com:1024" target="_blank" rel="noopener"
+>https://core.ic.X.com:1024&lt;/a>&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;span class="lnt">2
+&lt;/span>&lt;span class="lnt">3
+&lt;/span>&lt;span class="lnt">4
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@core:~&lt;/span> &lt;span class="c">#-&amp;gt; cat /etc/httpd/conf.d/gitlab-rewrite.conf&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># VERSION 6 - DO NOT REMOVE THIS LINE&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">RewriteEngine&lt;/span> &lt;span class="k">on&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">RewriteRule&lt;/span> ^/gitlab https://core.ic.X.com:1024 [L,R=301]
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h4 id="ldap">ldap&lt;/h4>
@@ -316,6 +435,15 @@ core ->> grid00: query result for www.baidu.com
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
+&lt;/div>&lt;p>配置完之后可以用如下命令进行测试&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gitlab-rake gitlab:ladap:check
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
 &lt;/div>&lt;h3 id="jenkins">jenkins&lt;/h3>
 &lt;h4 id="ssl-1">ssl&lt;/h4>
 &lt;p>jenkins用的是java那一套，所以ssl的支持稍微麻烦一点。
@@ -353,25 +481,25 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;/span>&lt;span class="lnt">19
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">root@core:~ &lt;span class="c1">#-&amp;gt; cat /usr/lib/systemd/system/jenkins.service|grep -v &amp;#39;^#&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#jenkins is picky on java version&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">Environment&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;JAVA_HOME=/usr/java/jdk-17.0.5&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">Environment&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;JENKINS_JAVA_CMD=/usr/java/jdk-17.0.5/bin/java&amp;#34;&lt;/span>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@core:~&lt;/span> &lt;span class="c">#-&amp;gt; cat /usr/lib/systemd/system/jenkins.service|grep -v &amp;#39;^#&amp;#39;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c">#jenkins is picky on java version, must use version 17&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">Environment=&amp;#34;JAVA_HOME=/usr/java/jdk-17&lt;/span>.&lt;span class="err">0&lt;/span>.&lt;span class="err">5&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">Environment=&amp;#34;JENKINS_JAVA_CMD=/usr/java/jdk-17&lt;/span>.&lt;span class="err">0&lt;/span>.&lt;span class="err">5/bin/java&amp;#34;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#load the CA so we can use ldaps &lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">Environment&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;JAVA_OPTS=-Djava.awt.headless=true -Djavax.net.ssl.trustStore=/home/jenkins/config/cacerts -Djavax.net.ssl.trustStorePassword=changeit&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c">#load the CA so we can use ldaps &lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">Environment=&amp;#34;JAVA_OPTS=-Djava&lt;/span>.&lt;span class="err">awt&lt;/span>.&lt;span class="err">headless=&lt;/span>&lt;span class="nb">true&lt;/span> -Djavax.net.ssl.trustStore=/home/jenkins/config/cacerts -Djavax.net.ssl.trustStorePassword=changeit&lt;span class="s2">&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">#turn off http and enable https
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_PORT=-1&lt;span class="s2">&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_HTTPS_LISTEN_ADDRESS=10.0.2.100&lt;span class="s2">&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_HTTPS_PORT=8888&lt;span class="s2">&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">#specify the https ceritificate
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_HTTPS_KEYSTORE=/home/jenkins/config/jenkins.jks&lt;span class="s2">&amp;#34;
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_HTTPS_KEYSTORE_PASSWORD=changeit&lt;span class="err">&amp;#34;&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#turn off http and enable https&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">Environment&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;JENKINS_PORT=-1&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">Environment&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;JENKINS_HTTPS_LISTEN_ADDRESS=10.0.2.100&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">Environment&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;JENKINS_HTTPS_PORT=8888&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#specify the https ceritificate&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">Environment&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;JENKINS_HTTPS_KEYSTORE=/home/jenkins/config/jenkins.jks&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">Environment&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="s2">&amp;#34;JENKINS_HTTPS_KEYSTORE_PASSWORD=changeit&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>Install&lt;span class="o">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">WantedBy&lt;/span>&lt;span class="o">=&lt;/span>multi-user.target
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[Install]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">WantedBy=multi-user&lt;/span>.&lt;span class="nb">target&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h4 id="ldap-1">ldap&lt;/h4>
@@ -452,10 +580,10 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;h4 id="node">node&lt;/h4>
 &lt;p>建议安装在portal上面，默认端口是5510
 添加node的时候选择10.0.2.1,端口5510,然后再client IP里面进行重映射，比如192.168.5.100:5510&lt;/p>
-&lt;h4 id="ssl-支持">ssl 支持&lt;/h4>
+&lt;h4 id="ssl-2">ssl&lt;/h4>
 &lt;p>如果要增加ssl支持，需要修改 &lt;strong>$INSTALL_DIR/data/ssl&lt;/strong> 里面的 &lt;strong>server.key&lt;/strong> 和&lt;strong>server.crt&lt;/strong>. 可以用前文提到的xca工具生成，懒人的话建议生成通配符证书即可。
 另外其实在linux上面做ETX的多开很容易，文件夹复制黏贴改个名字就行了。Windows node 复制黏贴比较麻烦，暂时还没有花精力去搞。至于为何要多开？那当然是解决license个数不足的问题了。&lt;/p>
-&lt;h4 id="flexlm">flexlm&lt;/h4>
+&lt;h3 id="flexlm">flexlm&lt;/h3>
 &lt;p>几乎所有的eda工具都是用flexlm来管理的，这个和谐方式也是各式各样。有一些注意事项&lt;/p>
 &lt;ol>
 &lt;li>允许在同一个端口上起多个vendor的license daemon,比如你可以把不同家的license文件里面的端口都改成一样的，然后lmgrd一起启动&lt;/li>
@@ -464,7 +592,7 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;li>license文件可以进行复制操作，比如你只买了10个正版license，如何扩展成100个，土鳖一点的方法就是用虚拟机多开，修改MAC地址。但是其实不用这么麻烦的，你在一台机器上也有办法实现开N个相同的vendor daemon的。
 由于可能不是那么众所周知的原因，宝岛台湾的一些工具是不使用flexlm管理的。个人推测一方面是成本考虑，另一方面是因为他们知道flexlm的license很容易被和谐，又不像大厂可以承受被破解的代价，所以就自己开发了一套软件授权管理工具。&lt;/li>
 &lt;/ol>
-&lt;h4 id="mirror">mirror&lt;/h4>
+&lt;h3 id="mirror">mirror&lt;/h3>
 &lt;p>在core上面设置centos的mirror,portal通过rsync的方式将外部的mirror同步到core上
 一个简单的用perl写的同步脚本如下&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -559,13 +687,13 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;/span>&lt;span class="lnt">7
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">root@core: &lt;span class="c1">#-&amp;gt; cat /etc/httpd/conf.d/repo.conf&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">Alias /centos &lt;span class="s2">&amp;#34;/repo/centos&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&amp;lt;Directory /repo/centos&amp;gt;
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Options Indexes FollowSymLinks MultiViews
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> AllowOverride all
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> Require all granted
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&amp;lt;/Directory&amp;gt;
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@core:&lt;/span> &lt;span class="c">#-&amp;gt; cat /etc/httpd/conf.d/repo.conf&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Alias&lt;/span> &lt;span class="sx">/centos&lt;/span> &lt;span class="s2">&amp;#34;/repo/centos&amp;#34;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;Directory&lt;/span> &lt;span class="s">/repo/centos&lt;/span>&lt;span class="nt">&amp;gt;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">Options&lt;/span> Indexes FollowSymLinks MultiViews
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">AllowOverride&lt;/span> &lt;span class="k">all&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">Require&lt;/span> &lt;span class="k">all&lt;/span> granted
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;/Directory&amp;gt;&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;p>最后修改机器的更新源为core&lt;/p>
@@ -613,46 +741,46 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;/span>&lt;span class="lnt">40
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
 &lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">root@core: &lt;span class="c1">#-&amp;gt; cat /etc/yum.repos.d/local.repo&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>local-base&lt;span class="o">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>local-&lt;span class="nv">$releasever&lt;/span> - Base
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">baseurl&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/os/&lt;span class="nv">$basearch&lt;/span>/
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgkey&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/RPM-GPG-CentOS-7
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgcheck&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">enabled&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@core:&lt;/span> &lt;span class="c">#-&amp;gt; cat /etc/yum.repos.d/local.repo&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-base]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Base
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/os/$basearch/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgkey=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>local-updates&lt;span class="o">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>local-&lt;span class="nv">$releasever&lt;/span> - Updates
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">baseurl&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/updates/&lt;span class="nv">$basearch&lt;/span>/
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgkey&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/RPM-GPG-CentOS-7
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgcheck&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">enabled&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-updates]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Updates
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/updates/$basearch/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgkey=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>local-extras&lt;span class="o">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>local-&lt;span class="nv">$releasever&lt;/span> - Extras
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">baseurl&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/extras/&lt;span class="nv">$basearch&lt;/span>/
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgkey&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/RPM-GPG-CentOS-7
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgcheck&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">enabled&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-extras]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Extras
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/extras/$basearch/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgkey=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>local-centosplus&lt;span class="o">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>local-&lt;span class="nv">$releasever&lt;/span> - Plus
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">baseurl&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/centosplus/&lt;span class="nv">$basearch&lt;/span>/
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgkey&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/RPM-GPG-CentOS-7
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgcheck&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">enabled&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-centosplus]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Plus
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/centosplus/$basearch/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgkey=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>local-contrib&lt;span class="o">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>local-&lt;span class="nv">$releasever&lt;/span> - Contrib
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">baseurl&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/contrib/&lt;span class="nv">$basearch&lt;/span>/
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgcheck&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">0&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">enabled&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-contrib]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Contrib
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/contrib/$basearch/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="o">[&lt;/span>local-epel&lt;span class="o">]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">name&lt;/span>&lt;span class="o">=&lt;/span>local-&lt;span class="nv">$releasever&lt;/span> - Epel
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">baseurl&lt;/span>&lt;span class="o">=&lt;/span>https://core.ic.X.com/centos/&lt;span class="nv">$releasever&lt;/span>/epel/&lt;span class="nv">$basearch&lt;/span>/
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">gpgcheck&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">0&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">enabled&lt;/span>&lt;span class="o">=&lt;/span>&lt;span class="m">1&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-epel]&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Epel
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/epel/$basearch/&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=0&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h2 id="安全设置">安全设置&lt;/h2>
@@ -665,11 +793,75 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;p>需要在/etc/ssh/sshd_config里面做如下配置&lt;/p>
 &lt;ul>
 &lt;li>普通用户关闭ssh登录权限&lt;/li>
-&lt;li>打开cor上的git登录权限，这是为了使用ssh进行git的checkout&lt;/li>
+&lt;li>打开core上的git登录权限，这是为了使用ssh进行git的checkout&lt;/li>
 &lt;li>只允许基于ssh key的登录方式，这是为了防止MTIM攻击&lt;/li>
 &lt;/ul>
 &lt;h3 id="防火墙配置">防火墙配置&lt;/h3>
 &lt;p>内网的机器可以把防火墙都关掉&lt;br>
 portal上面的防火墙只开放必要的端口，INPUT/OUTPUT/FORWARD的policy都设置成DROP&lt;br>
 portal作为登录机器是不允许跑EDA软件的，所以在core的防火墙上面要阻止来自portal的license请求&lt;br>
-另外需要注意虚拟机的网络是不受iptables控制的，所以在portal上绝对绝对不要装虚拟机软件，不让网络无法管控&lt;/p></description></item></channel></rss>
+另外需要注意虚拟机的网络是不受iptables控制的，所以在portal上绝对绝对不要装虚拟机软件，不让网络无法管控&lt;/p>
+&lt;h3 id="etx-配置">ETX 配置&lt;/h3>
+&lt;h4 id="限制最大拷贝数">限制最大拷贝数&lt;/h4>
+&lt;p>profile -&amp;gt; general -&amp;gt; optional settings 里面添加如下配置（最大只允许拷贝512个字符)&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">proxy&lt;/span>.&lt;span class="err">AllowCopyFromX=512&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h4 id="限制用户编辑profile">限制用户编辑profile&lt;/h4>
+&lt;p>如果允许用户自己编辑profile,他就可以设置一个profile允许上传和下载，这无疑是有问题的&lt;/p>
+&lt;h3 id="邮件发送">邮件发送&lt;/h3>
+&lt;p>jenkins/gitlab等都有发送邮件的需求，但是core本身是无法连接外网的，解决方法就是要借助core
+需要有一个专门的邮件账号用来发邮件（&lt;em>jarvis&lt;/em>)，这个账号只能开放smtp功能，不能开放 imap功能，这主要是为了防止有用户发完邮件又通过imap将发送邮件删除，从而销毁证据&lt;br>
+具体步骤如下&lt;/p>
+&lt;ol>
+&lt;li>在portal上面开一个邮件代理，只允许特定IP连接本地的465端口&lt;/li>
+&lt;li>在core上，只有特定用户才可以连接到core的465端口,包括以下用户
+&lt;ol>
+&lt;li>ETX 服务: root&lt;/li>
+&lt;li>jenkins服务: jenkins&lt;/li>
+&lt;/ol>
+&lt;/li>
+&lt;li>上面两个步骤是确保用户无法使用自己的邮箱发送邮件，而只能通过jarvis账号发送&lt;/li>
+&lt;li>jarvis账号会将所有内容存档，便于安全审计
+邮件代理可以用nginx处理,关键配置如下&lt;/li>
+&lt;/ol>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;span class="lnt">11
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@portal0:~&lt;/span> &lt;span class="c">#-&amp;gt; cat /etc/nginx/stream/mail_pro.conf&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">upstream&lt;/span> mailsmtp_pro {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">server&lt;/span> smtp.qiye.aliyun.com:465;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">server&lt;/span> {
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">listen&lt;/span> &lt;span class="m">465&lt;/span>;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">proxy_connect_timeout&lt;/span> &lt;span class="m">5&lt;/span>s;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">proxy_timeout&lt;/span> &lt;span class="m">5&lt;/span>s;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">proxy_pass&lt;/span> mailsmtp_pro;
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;h3 id="目录夹权限">目录夹权限&lt;/h3>
+&lt;p>下面这些文件夹需要设置合适的权限保证普通用户无法看到&lt;/p>
+&lt;ul>
+&lt;li>/proj/git: 里面存放了git的database&lt;/li>
+&lt;li>/proj/xxx: 只有处于项目组xxx里面的人才能进入&lt;/li>
+&lt;li>/data/backup: 需要保证普通用户无法访问备份文件夹&lt;/li>
+&lt;/ul></description></item></channel></rss>
