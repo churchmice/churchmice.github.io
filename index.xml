@@ -444,7 +444,14 @@ core ->> grid00: query result for www.baidu.com
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gitlab-rake gitlab:ladap:check
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h3 id="jenkins">jenkins&lt;/h3>
+&lt;/div>&lt;h4 id="migration">migration&lt;/h4>
+&lt;p>可以用如下的方式进行迁移&lt;/p>
+&lt;ol>
+&lt;li>进入旧文件夹，git remote 解除远端reposity的绑定&lt;/li>
+&lt;li>git remote 添加新远端repository&lt;/li>
+&lt;li>git push&lt;/li>
+&lt;/ol>
+&lt;h3 id="jenkins">jenkins&lt;/h3>
 &lt;h4 id="ssl-1">ssl&lt;/h4>
 &lt;p>jenkins用的是java那一套，所以ssl的支持稍微麻烦一点。
 CA: &lt;strong>update-ca-trust&lt;/strong> 本身就已经产生了java需要的CA,具体的路径是 &lt;strong>/etc/pki/ca-trust/extracted/java/cacerts&lt;/strong>
