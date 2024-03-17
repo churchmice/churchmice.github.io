@@ -63,7 +63,9 @@ portal作为NTP server,提供定时服务给到10.0.2.0/24网段</p><div class=h
 安装过程中会提示admin password和directory manager的password
 安装过程会提示上游DNS,填10.0.2.1</p><h4 id=client安装>client安装</h4><p>以grid00为例</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>ipa-client-install --server<span class=o>=</span>core.ic.X.com --domain<span class=o>=</span>grid00.ic.X.com -N --enable-dns-updates --hostname<span class=o>=</span>grid00.ic.X.com
-</span></span></code></pre></td></tr></table></div></div><h4 id=ssl-证书>SSL 证书</h4><p>在IPA server的安装过程中，会将产生的root CA放在/root/cacert.p12下面，可以用<a class=link href=https://hohnstaedt.de/xca/ target=_blank rel=noopener>xca</a> 导入进行管理，以后可以用这个root CA签名新的证书。导入过程中会提示你输入密码，这个密码就是安装过程中输入的admin password。
+</span></span></code></pre></td></tr></table></div></div><h4 id=ssl-证书>SSL 证书</h4><p>在IPA server的安装过程中，会将产生的root CA放在/root/cacert.p12下面，可以用
+<a href=https://hohnstaedt.de/xca/ target=_blank>xca</a>
+导入进行管理，以后可以用这个root CA签名新的证书。导入过程中会提示你输入密码，这个密码就是安装过程中输入的admin password。
 都已经2024年了，推荐所有的服务都上https</p><p>IPA的管理界面默认会占用80/443/8080/8443端口，请避免和其他服务冲突
 windows电脑登录的时候会跳出一个认证框，这是因为windows支持kerbose login, 可以通过在 /etc/httpd/conf.d/ipa.conf 里面添加如下配置禁用</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
@@ -105,11 +107,14 @@ windows电脑登录的时候会跳出一个认证框，这是因为windows支持
 </span></span><span class=line><span class=cl>mkdir build <span class=o>&amp;&amp;</span> <span class=nb>cd</span> build
 </span></span><span class=line><span class=cl>../configure --prefix<span class=o>=</span>/tools/misc/gcc/xx.xx.xx --enable-checking<span class=o>=</span>release --enable-languages<span class=o>=</span>c,c++ --enable-threads<span class=o>=</span>posix --disable-multilib --with-system-zlib 
 </span></span><span class=line><span class=cl>make -j64 <span class=o>&amp;&amp;</span> make install
-</span></span></code></pre></td></tr></table></div></div><p>版本之间的切换可以用 <a class=link href=https://modules.readthedocs.io/en/latest/ target=_blank rel=noopener>modules</a> 进行管理。</p><h3 id=sungrid>sungrid</h3><p>sungrid是一个开源的集群运算软件，在core上执行</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><p>版本之间的切换可以用
+<a href=https://modules.readthedocs.io/en/latest/ target=_blank>modules</a>
+进行管理。</p><h3 id=sungrid>sungrid</h3><p>sungrid是一个开源的集群运算软件，在core上执行</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl>yum install -y jemalloc gridengine gridengine-execd gridengine-guiinst gridengine-qmaster gridengine-qmon
 </span></span></code></pre></td></tr></table></div></div><p>然后通过如下命令启动图形安装界面</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-shell data-lang=shell><span class=line><span class=cl><span class=nb>cd</span> /opt/sge <span class=o>&amp;&amp;</span> ./start_gui_installer
-</span></span></code></pre></td></tr></table></div></div><h3 id=gitlab>gitlab</h3><p><a class=link href=https://about.gitlab.com/ target=_blank rel=noopener>gitlab</a>是一个可以私有部署的程序员内部交友网站，主要的配置文件是/etc/gitlab/gitlab.rb。
+</span></span></code></pre></td></tr></table></div></div><h3 id=gitlab>gitlab</h3><p><a href=https://about.gitlab.com/ target=_blank>gitlab</a>
+是一个可以私有部署的程序员内部交友网站，主要的配置文件是/etc/gitlab/gitlab.rb。
 最重要的数据文件推荐放在netapp的存储上面，备份文件建议放在core的本地存储上面，对应的配置如下</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt> 1
 </span><span class=lnt> 2
 </span><span class=lnt> 3
@@ -141,7 +146,10 @@ windows电脑登录的时候会跳出一个认证框，这是因为windows支持
 </span></span><span class=line><span class=cl><span class=n>nginx</span><span class=o>[</span><span class=s1>&#39;ssl_certificate_key&#39;</span><span class=o>]</span> <span class=o>=</span> <span class=s2>&#34;/etc/ssl/ic.X.com/server.key&#34;</span>
 </span></span><span class=line><span class=cl><span class=n>external_url</span> <span class=s1>&#39;https://core.ic.X.com&#39;</span>
 </span></span><span class=line><span class=cl><span class=n>nginx</span><span class=o>[</span><span class=s1>&#39;listen_port&#39;</span><span class=o>]</span> <span class=o>=</span> <span class=mi>1024</span>
-</span></span></code></pre></td></tr></table></div></div><p>可以通过下面的rewrite rule将 <a class=link href=https://git.ic.X.com target=_blank rel=noopener>https://git.ic.X.com</a> 重定向到 <a class=link href=https://core.ic.X.com:1024 target=_blank rel=noopener>https://core.ic.X.com:1024</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
+</span></span></code></pre></td></tr></table></div></div><p>可以通过下面的rewrite rule将
+<a href=https://git.ic.X.com target=_blank>https://git.ic.X.com</a>
+重定向到
+<a href=https://core.ic.X.com:1024 target=_blank>https://core.ic.X.com:1024</a></p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span><span class=lnt>2
 </span><span class=lnt>3
 </span><span class=lnt>4
@@ -307,7 +315,9 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 </span></span><span class=line><span class=cl>  <span class=nt>&lt;/securityRealm&gt;</span>
 </span></span></code></pre></td></tr></table></div></div><p>如果因为某些原因导致更改完了登录不了jenkins ( 比如权限忘记配置了)，只需要将下面的配置从true改为false即可</p><div class=highlight><div class=chroma><table class=lntable><tr><td class=lntd><pre tabindex=0 class=chroma><code><span class=lnt>1
 </span></code></pre></td><td class=lntd><pre tabindex=0 class=chroma><code class=language-xml data-lang=xml><span class=line><span class=cl>  <span class=nt>&lt;useSecurity&gt;</span>true<span class=nt>&lt;/useSecurity&gt;</span>
-</span></span></code></pre></td></tr></table></div></div><h3 id=etx>ETX</h3><p>这是一个服务器登录软件。推荐<a class=link href=https://www.opentext.nl/products-and-solutions/products/specialty-technologies/connectivity/exceed-ondemand target=_blank rel=noopener>EXT</a>，吊打一切牛鬼蛇神，主要优势有以下几个</p><ul><li>只用开放一个端口即可，这样就方便进行管理。vnc这种每个用户都开一个端口的方式一是不方便管理，而是有漏洞，用户要进行脱库操作很容易。</li><li>可以对上传下载权限进行单独管理，一般只允许上传，不允许下载</li><li>可以限制从服务器到本地复制黏贴的字符个数，有效的防止了用户通过<strong>CTRL+C</strong> <strong>CTRL+V</strong> 的方式拷贝代码到本地</li><li>集成ldap认证，可对用户登录以及可见的profile做限制
+</span></span></code></pre></td></tr></table></div></div><h3 id=etx>ETX</h3><p>这是一个服务器登录软件。推荐
+<a href=https://www.opentext.nl/products-and-solutions/products/specialty-technologies/connectivity/exceed-ondemand target=_blank>EXT</a>
+，吊打一切牛鬼蛇神，主要优势有以下几个</p><ul><li>只用开放一个端口即可，这样就方便进行管理。vnc这种每个用户都开一个端口的方式一是不方便管理，而是有漏洞，用户要进行脱库操作很容易。</li><li>可以对上传下载权限进行单独管理，一般只允许上传，不允许下载</li><li>可以限制从服务器到本地复制黏贴的字符个数，有效的防止了用户通过<strong>CTRL+C</strong> <strong>CTRL+V</strong> 的方式拷贝代码到本地</li><li>集成ldap认证，可对用户登录以及可见的profile做限制
 当然他的缺点也是显而易见的，那就是需要花钱购买。这公司的销售人员也是非常了解国情，默认都是提供买断的license服务，一次购买，终身可用，然后单个license的价格还是不便宜。</li></ul><h4 id=server>server</h4><p>建议安装在core上面，然后通过端口映射的方式映射到portal的8443端口</p><h4 id=node>node</h4><p>建议安装在portal上面，默认端口是5510
 添加node的时候选择10.0.2.1,端口5510,然后再client IP里面进行重映射，比如192.168.5.100:5510</p><h4 id=ssl-2>ssl</h4><p>如果要增加ssl支持，需要修改 <strong>$INSTALL_DIR/data/ssl</strong> 里面的 <strong>server.key</strong> 和<strong>server.crt</strong>. 可以用前文提到的xca工具生成，懒人的话建议生成通配符证书即可。
 另外其实在linux上面做ETX的多开很容易，文件夹复制黏贴改个名字就行了。Windows node 复制黏贴比较麻烦，暂时还没有花精力去搞。至于为何要多开？那当然是解决license个数不足的问题了。</p><h3 id=flexlm>flexlm</h3><p>几乎所有的eda工具都是用flexlm来管理的，这个和谐方式也是各式各样。有一些注意事项</p><ol><li>允许在同一个端口上起多个vendor的license daemon,比如你可以把不同家的license文件里面的端口都改成一样的，然后lmgrd一起启动</li><li>一些和谐版的license daemon会有相互打架的情况，所以1的前提就不成立了</li><li>有些vendor daemon对网卡名字有特别要求，一定要求是 <em>eth</em> 开头，比如TSMC</li><li>license文件可以进行复制操作，比如你只买了10个正版license，如何扩展成100个，土鳖一点的方法就是用虚拟机多开，修改MAC地址。但是其实不用这么麻烦的，你在一台机器上也有办法实现开N个相同的vendor daemon的。

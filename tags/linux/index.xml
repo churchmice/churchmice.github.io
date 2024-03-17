@@ -171,8 +171,9 @@ portal作为NTP server,提供定时服务给到10.0.2.0/24网段&lt;/p>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h4 id="ssl-证书">SSL 证书&lt;/h4>
-&lt;p>在IPA server的安装过程中，会将产生的root CA放在/root/cacert.p12下面，可以用&lt;a class="link" href="https://hohnstaedt.de/xca/" target="_blank" rel="noopener"
->xca&lt;/a> 导入进行管理，以后可以用这个root CA签名新的证书。导入过程中会提示你输入密码，这个密码就是安装过程中输入的admin password。
+&lt;p>在IPA server的安装过程中，会将产生的root CA放在/root/cacert.p12下面，可以用
+&lt;a href="https://hohnstaedt.de/xca/" target="_blank">xca&lt;/a>
+导入进行管理，以后可以用这个root CA签名新的证书。导入过程中会提示你输入密码，这个密码就是安装过程中输入的admin password。
 都已经2024年了，推荐所有的服务都上https&lt;/p>
 &lt;p>IPA的管理界面默认会占用80/443/8080/8443端口，请避免和其他服务冲突
 windows电脑登录的时候会跳出一个认证框，这是因为windows支持kerbose login, 可以通过在 /etc/httpd/conf.d/ipa.conf 里面添加如下配置禁用&lt;/p>
@@ -286,8 +287,9 @@ core ->> grid00: query result for www.baidu.com
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make -j64 &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> make install
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>版本之间的切换可以用 &lt;a class="link" href="https://modules.readthedocs.io/en/latest/" target="_blank" rel="noopener"
->modules&lt;/a> 进行管理。&lt;/p>
+&lt;/div>&lt;p>版本之间的切换可以用
+&lt;a href="https://modules.readthedocs.io/en/latest/" target="_blank">modules&lt;/a>
+进行管理。&lt;/p>
 &lt;h3 id="sungrid">sungrid&lt;/h3>
 &lt;p>sungrid是一个开源的集群运算软件，在core上执行&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -308,8 +310,9 @@ core ->> grid00: query result for www.baidu.com
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h3 id="gitlab">gitlab&lt;/h3>
-&lt;p>&lt;a class="link" href="https://about.gitlab.com/" target="_blank" rel="noopener"
->gitlab&lt;/a>是一个可以私有部署的程序员内部交友网站，主要的配置文件是/etc/gitlab/gitlab.rb。
+&lt;p>
+&lt;a href="https://about.gitlab.com/" target="_blank">gitlab&lt;/a>
+是一个可以私有部署的程序员内部交友网站，主要的配置文件是/etc/gitlab/gitlab.rb。
 最重要的数据文件推荐放在netapp的存储上面，备份文件建议放在core的本地存储上面，对应的配置如下&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -363,9 +366,11 @@ core ->> grid00: query result for www.baidu.com
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">nginx&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;listen_port&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1024&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;p>可以通过下面的rewrite rule将 &lt;a class="link" href="https://git.ic.X.com" target="_blank" rel="noopener"
->https://git.ic.X.com&lt;/a> 重定向到 &lt;a class="link" href="https://core.ic.X.com:1024" target="_blank" rel="noopener"
->https://core.ic.X.com:1024&lt;/a>&lt;/p>
+&lt;/div>&lt;p>可以通过下面的rewrite rule将
+&lt;a href="https://git.ic.X.com" target="_blank">https://git.ic.X.com&lt;/a>
+重定向到
+&lt;a href="https://core.ic.X.com:1024" target="_blank">https://core.ic.X.com:1024&lt;/a>
+&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -592,8 +597,9 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
 &lt;/div>&lt;h3 id="etx">ETX&lt;/h3>
-&lt;p>这是一个服务器登录软件。推荐&lt;a class="link" href="https://www.opentext.nl/products-and-solutions/products/specialty-technologies/connectivity/exceed-ondemand" target="_blank" rel="noopener"
->EXT&lt;/a>，吊打一切牛鬼蛇神，主要优势有以下几个&lt;/p>
+&lt;p>这是一个服务器登录软件。推荐
+&lt;a href="https://www.opentext.nl/products-and-solutions/products/specialty-technologies/connectivity/exceed-ondemand" target="_blank">EXT&lt;/a>
+，吊打一切牛鬼蛇神，主要优势有以下几个&lt;/p>
 &lt;ul>
 &lt;li>只用开放一个端口即可，这样就方便进行管理。vnc这种每个用户都开一个端口的方式一是不方便管理，而是有漏洞，用户要进行脱库操作很容易。&lt;/li>
 &lt;li>可以对上传下载权限进行单独管理，一般只允许上传，不允许下载&lt;/li>
