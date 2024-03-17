@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Life on Free at last</title><link>https://churchmice.github.io/categories/life/</link><description>Recent content in Life on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 17 Mar 2024 19:47:06 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/categories/life/index.xml" rel="self" type="application/rss+xml"/><item><title>Virtual Card</title><link>https://churchmice.github.io/p/virtual-card/</link><pubDate>Sun, 17 Mar 2024 19:47:06 +0800</pubDate><guid>https://churchmice.github.io/p/virtual-card/</guid><description>&lt;p>这几天把N26/wise/ifast都开户了，也都激活了，不免有点空虚，闲下来了把整个开户过程记录下吧。这三个都是虚拟账户，都有IBAN( International Bank Account Number),直接填写IBAN就可以转账了。&lt;/p>
+&lt;h1 id="n26">N26&lt;/h1>
+&lt;p>N26是德国的银行，可以在线开户，下载app之后地址选择德国即可。之后要进行一个视频面试，需要有一点点英文的基础，基本问题如下&lt;/p>
+&lt;ul>
+&lt;li>是否本人开户&lt;/li>
+&lt;li>是否有人强迫你开户
+接着回让你们来回挥动护照，让你把护照合上然后问你的生日，证明你是这护照的主人。
+视频完了之后就一直&amp;rsquo;verify identity&amp;rsquo;，我算比较久的，大概过了一周之后才通过。
+通过之后需要入金激活，每个人的要求不一样，我的是需要入金10 EUR,直接拿香港汇丰转个10 EUR就行了。
+入金激活之后需要绑定设备，这样登录不用每次收短信，只有绑定设备之后才能查看卡号。按照步骤进行即可，但是我在最后的视频验证的时候总是拍出来的图像模糊，反反复复10来次，换不同的采光条件都是一样的结果。最后发现是root惹得祸，在magisk hide里面务必把这个app的所有intent都加到hide list里面，这样处理之后视频验证就过了。
+这个卡如果要实体卡的话需要有国外收货地址，遂放弃。&lt;/li>
+&lt;/ul>
+&lt;h1 id="wise">WISE&lt;/h1>
+&lt;p>wise开户的话全程中国资料，地址啥填的都是中国，开户还是蛮快的。
+入金的话用N26就可以，选择debit card,然后去N26里面给的debit 卡号和ccv码填进去就可以了。
+如果要实体卡的话据说把地址改成马来西亚就可以了，然后收件地址填国内的，会从新加坡平信寄送到国内，但是不少人反应过了几个月都没收到，而且改地址有被要求地址验证的风险，遂放弃。
+这卡用了一次就收到了邮件调查，问我是不是PEP ( politically exposed position )，估计是跟某官员重名了，邮件如实回复就好，回复完之后账号一切正常。&lt;/p>
+&lt;h1 id="ifast">iFAST&lt;/h1>
+&lt;p>这个是英国公司，用护照注册即可，最后会让你录一段视频，说几句话，审核也挺快的。
+可以用WISE入金。&lt;/p></description></item></channel></rss>
