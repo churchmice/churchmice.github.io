@@ -1,4 +1,23 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Free at last</title><link>https://churchmice.github.io/</link><description>Recent content on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 03 Mar 2024 13:06:43 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Building EDA server from scratch</title><link>https://churchmice.github.io/p/eda-server/</link><pubDate>Sun, 03 Mar 2024 13:06:43 +0800</pubDate><guid>https://churchmice.github.io/p/eda-server/</guid><description>&lt;h1 id="前言">前言&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Free at last</title><link>https://churchmice.github.io/</link><description>Recent content on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 17 Mar 2024 14:00:22 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Fpga Bot</title><link>https://churchmice.github.io/p/fpga-bot/</link><pubDate>Sun, 17 Mar 2024 14:00:22 +0800</pubDate><guid>https://churchmice.github.io/p/fpga-bot/</guid><description>&lt;h2 id="起因">起因&lt;/h2>
+&lt;p>公司的服务器如果需要外发需要走外发申请(至安盾),需要有人审批之后才可以将文件进行放行。
+FPGA编译是在服务器上进行的,而且经常需要出一些调试版本，如果编译一次就走一遍外发申请的flow，那讲师相当废时间的。所以是想用一种自动的方法可以将FPGA编译完成的内容直接让用户可以下载。&lt;/p>
+&lt;h1 id="原理">原理&lt;/h1>
+&lt;p>这个问题其实分几步走，原理其实和trustzone都有点类似，就是提供一种类似secure monitor的机制，接受用户提交的编译请求，编译完了就自动把文件拷贝到ftp的下载路径下，这样用户就可以直接通过ftp下载编译好的文件了。&lt;/p>
+&lt;h2 id="ftp">ftp&lt;/h2>
+&lt;p>用的是vsftp,只允许匿名用户下载，不允许上传。请注意千万不要把其他用户的ftp权限打开，尤其是不能打开chroot功能，否则用户就可以直接下载home目录里面的内容了。ftp的下载路径对应于服务器上的/var/ftp目录，在这个下面新建一个bitfile的文件夹，只允许bot用户有写权限。&lt;/p>
+&lt;h2 id="fpga-auto-build">fpga auto build&lt;/h2>
+&lt;p>一开始想用setuid来做的，虽然可以通过wrapper的方式让perl脚本以setuid的形式运行(EID != UID),但是在perl脚本里面如果还要调用其他脚本（是脚本，不是binary)那么这个setuid就会失效，除非也用类似binary wrapper的方式一层层套用下去。但是问题在于很多EDA工具和用户的接口其实也是个脚本文件，这样套壳的工作量就很大。
+接着想到了代理的方式，就是用户提交过来的命令通过http的形式发送给server,server运行在root模式下，可以通过一些手段确定这个命令的确是这个用户提交的，然后su到bot执行命令。这种方式的问题是bot在编译过程中产生的一些终端输出无法实时的给到用户，而且如果要给的话其实要对cmd_server做进一步的加工。
+最后想到的是直接用sudo来做，这种方式的话需要在/etc/sudoers里面严格限定用户可以让bot用户sudo的命令。当然为了安全起见，限定了只有在特定组别的用户才能执行sudo命令。&lt;/p>
+&lt;h1 id="接口">接口&lt;/h1>
+&lt;p>最终提供给用户的是一个bot.cfg的配置文件，用户可以在这个配置文件里面进行配置，比如filelist的路径，xdc的路径等。配置完之后用户执行fpga_bot -c bot.cfg之后就会开始自动编译。&lt;/p>
+&lt;h2 id="安全">安全&lt;/h2>
+&lt;p>需要注意如下一些安全事项&lt;/p>
+&lt;ul>
+&lt;li>sudo bot只允许特定用户组调用特定命令,可以在/etc/sudoers文件里面加以限制&lt;/li>
+&lt;li>要防止FPGA编译的tcl文件里面调用exec函数，在编译之前会用脚本去扫描用户提供的tcl文件里面调用的命令，现在采用的是白名单机制，只允许read_xdc和read_ip这两条。&lt;/li>
+&lt;li>vsftp配置只允许anonymous登录，只允许下载，不允许上传&lt;/li>
+&lt;/ul></description></item><item><title>Building EDA server from scratch</title><link>https://churchmice.github.io/p/eda-server/</link><pubDate>Sun, 03 Mar 2024 13:06:43 +0800</pubDate><guid>https://churchmice.github.io/p/eda-server/</guid><description>&lt;h1 id="前言">前言&lt;/h1>
 &lt;p>在&lt;strong>老和山&lt;/strong>职业技术学院读书的时候就开始从事实验室的兼职网管，负责实验室的网络建设以及服务器的维护，也是时候写个文章把攒了这么多年的知识科普一下。&lt;/p>
 &lt;h2 id="硬件">硬件&lt;/h2>
 &lt;ul>
