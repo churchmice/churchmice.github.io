@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Free at last</title><link>https://churchmice.github.io/</link><description>Recent content on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 17 Mar 2024 22:04:36 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Cs Wangdao</title><link>https://churchmice.github.io/p/cs-wangdao/</link><pubDate>Sun, 17 Mar 2024 22:04:36 +0800</pubDate><guid>https://churchmice.github.io/p/cs-wangdao/</guid><description>&lt;p>虽然我不是CS的，但是王道系列起源于88，也算有点渊源，贴在这里就当存档吧。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Free at last</title><link>https://churchmice.github.io/</link><description>Recent content on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 17 Mar 2024 22:04:36 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>CS Wangdao</title><link>https://churchmice.github.io/p/cs-wangdao/</link><pubDate>Sun, 17 Mar 2024 22:04:36 +0800</pubDate><guid>https://churchmice.github.io/p/cs-wangdao/</guid><description>&lt;p>虽然我不是CS的，但是王道系列起源于88，也算有点渊源，贴在这里就当存档吧。&lt;/p>
 &lt;h1 id="考研回忆">考研回忆&lt;/h1>
 &lt;p>以前我天天都想自杀&lt;br>
 有一天我在天桥默默走著犹豫要不要直接跳下去的时候&lt;/p>
@@ -209,6 +209,92 @@ FPGA编译是在服务器上进行的,而且经常需要出一些调试版本，
 &lt;li>sudo bot只允许特定用户组调用特定命令,可以在/etc/sudoers文件里面加以限制&lt;/li>
 &lt;li>要防止FPGA编译的tcl文件里面调用exec函数，在编译之前会用脚本去扫描用户提供的tcl文件里面调用的命令，现在采用的是白名单机制，只允许read_xdc和read_ip这两条。&lt;/li>
 &lt;li>vsftp配置只允许anonymous登录，只允许下载，不允许上传&lt;/li>
+&lt;/ul></description></item><item><title>Go_stock</title><link>https://churchmice.github.io/p/go_stock/</link><pubDate>Wed, 06 Mar 2024 09:07:42 +0800</pubDate><guid>https://churchmice.github.io/p/go_stock/</guid><description>&lt;h1 id="银行卡">银行卡&lt;/h1>
+&lt;p>持有以下三行&lt;/p>
+&lt;h2 id="汇丰">汇丰&lt;/h2>
+&lt;p>推荐，一地卓越，全球卓越，同名账户不同地的账户互转没有手续费
+唯一的缺点是汇丰的&lt;strong>利率&lt;/strong>不太好，这也是被很多人诟病的,另外坊间流传国外账户动不动关户的情况。
+大陆可以用卓越员工计划先开大陆的卓越理财，主账户留在大陆，然后见证开户香港账户，最后是自助开户美国账户&lt;/p>
+&lt;h3 id="美国账户">美国账户&lt;/h3>
+&lt;p>分为checking account和saving accout, 每一个account包括9位数的ABA路由码（标识银行机构）和9位数的账号（标识银行中的不同用户）组成
+checking acccout可以理解为活期账户，可以消费转账，和debit card绑定
+saving accout可以理解为定期账户，只能和checking account之间进行资金的互转&lt;/p>
+&lt;h2 id="root的解决方法">Root的解决方法&lt;/h2>
+&lt;p>银行app会检测手机是否root,可以通过安装
+&lt;a href="https://github.com/HuskyDG/magisk-files/releases" target="_blank">magisk kitsune&lt;/a>
+来解决，需要注意的是magisk本身也需要隐藏，防止被app检测出来。&lt;/p>
+&lt;p>&lt;img src="image/Pasted%20image%2020240307075444.png" alt="" />&lt;/p>
+&lt;h2 id="n26wiseifast">N26/WISE/iFast&lt;/h2>
+&lt;p>具体参考
+&lt;a href="https://churchmice.github.io/p/virtual-card/" target="_blank">国外虚拟卡指南&lt;/a>
+&lt;/p>
+&lt;h2 id="招行香港">招行香港&lt;/h2>
+&lt;p>扔1w港币买恒生指数，就算这样每个月还是需要缴纳10港币的管理费&lt;/p>
+&lt;h3 id="root之后闪退">root之后闪退&lt;/h3>
+&lt;p>需要去magiskhide里面把对应的app点开，然后把所有的√都打上即可，如下所示
+&lt;img src="image/Pasted%20image%2020240307075530.png" alt="" />&lt;/p>
+&lt;h1 id="券商">券商&lt;/h1>
+&lt;h2 id="大陆">大陆&lt;/h2>
+&lt;p>东方赢家，好处是万一免五，也就是佣金是万分之一，免除最小五块交易费的要求。&lt;/p>
+&lt;h2 id="香港">香港&lt;/h2>
+&lt;p>不外乎是长桥，富途和老虎，这三个最为人所知，都开户撸了羊毛。
+最后综合考虑选择了长桥&lt;/p>
+&lt;h3 id="入金">入金&lt;/h3>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>币种&lt;/th>
+&lt;th>方式&lt;/th>
+&lt;th>时效&lt;/th>
+&lt;th>手续费&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>港币&lt;/td>
+&lt;td>eDDA&lt;/td>
+&lt;td>秒到&lt;/td>
+&lt;td>0&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h3 id="出金">出金&lt;/h3>
+&lt;table>
+&lt;thead>
+&lt;tr>
+&lt;th>币种&lt;/th>
+&lt;th>方式&lt;/th>
+&lt;th>时效&lt;/th>
+&lt;th>手续费&lt;/th>
+&lt;/tr>
+&lt;/thead>
+&lt;tbody>
+&lt;tr>
+&lt;td>港币&lt;/td>
+&lt;td>eDDA&lt;/td>
+&lt;td>1天&lt;/td>
+&lt;td>0&lt;/td>
+&lt;/tr>
+&lt;/tbody>
+&lt;/table>
+&lt;h2 id="美国">美国&lt;/h2>
+&lt;h3 id="入金-1">入金&lt;/h3>
+&lt;ul>
+&lt;li>汇丰环球转到HSBC US,然后用ACH入金&lt;/li>
+&lt;li>参考
+&lt;a href="https://www.flyert.com/forum.php?mod=viewthread&amp;amp;tid=4574717&amp;amp;extra=page%3D1&amp;amp;page=1" target="_blank">盈透入金&lt;/a>
+，香港汇丰转本地银行美元，不走电汇，走的是chats，不收费。&lt;/li>
+&lt;/ul>
+&lt;h3 id="出金-1">出金&lt;/h3>
+&lt;p>出金的话，每个月的第一笔免费，其余的需要支持25美金手续费&lt;/p>
+&lt;h1 id="资金出海">资金出海&lt;/h1>
+&lt;p>现在的方式是通过兴业银行购汇，其实汇率最优的是南洋商业银行，但是去办卡的时候说汇款境外要提供酒店机票等证明材料，听起来比较麻烦
+兴业银行海外汇款的一些注意事项&lt;/p>
+&lt;ul>
+&lt;li>第一次汇款选择用港币，上传港澳通信证，联系人的香港地址找个香港酒店就行，我直接写了汇丰想干的地址也过了&lt;/li>
+&lt;li>后续汇款可以直接汇美金出去，但是需要在早上9点前操作，这样才能在下午三点前完成审核并汇出，下午三点前走的中转行是香港汇丰，不会收取额外的手续费。如果是三点之后的话会走海外的花旗中转，有额外25美金的手续费。&lt;/li>
+&lt;li>汇款的时候备注填 &lt;strong>interbank by HSBCHKHH&lt;/strong> ,收款人开户银行账号或清算代码填 &lt;strong>HSBCHKHH&lt;/strong>, 收款行之代理行swift代码填 &lt;strong>HSBCHKHH&lt;/strong>。这个swift代码会被兴业补全成 &lt;strong>HSBCHKHHXXX&lt;/strong>.&lt;/li>
+&lt;li>回款和非柜金额无关，我的账号非柜5w,但是我单笔1w美刀的回款也成功了&lt;/li>
 &lt;/ul></description></item><item><title>Building EDA server from scratch</title><link>https://churchmice.github.io/p/eda-server/</link><pubDate>Sun, 03 Mar 2024 13:06:43 +0800</pubDate><guid>https://churchmice.github.io/p/eda-server/</guid><description>&lt;h1 id="前言">前言&lt;/h1>
 &lt;p>在&lt;strong>老和山&lt;/strong>职业技术学院读书的时候就开始从事实验室的兼职网管，负责实验室的网络建设以及服务器的维护，也是时候写个文章把攒了这么多年的知识科普一下。&lt;/p>
 &lt;h2 id="硬件">硬件&lt;/h2>
