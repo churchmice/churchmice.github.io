@@ -1,4 +1,8 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Life on Free at last</title><link>https://churchmice.github.io/categories/life/</link><description>Recent content in Life on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Thu, 21 Mar 2024 09:07:42 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/categories/life/index.xml" rel="self" type="application/rss+xml"/><item><title>Go_stock</title><link>https://churchmice.github.io/p/go_stock/</link><pubDate>Thu, 21 Mar 2024 09:07:42 +0800</pubDate><guid>https://churchmice.github.io/p/go_stock/</guid><description>&lt;h1 id="银行卡">银行卡&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Life on Free at last</title><link>https://churchmice.github.io/categories/life/</link><description>Recent content in Life on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Fri, 22 Mar 2024 09:45:55 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/categories/life/index.xml" rel="self" type="application/rss+xml"/><item><title>Gamble</title><link>https://churchmice.github.io/p/gamble/</link><pubDate>Fri, 22 Mar 2024 09:45:55 +0800</pubDate><guid>https://churchmice.github.io/p/gamble/</guid><description>&lt;h1 id="一些原则">一些原则&lt;/h1>
+&lt;ul>
+&lt;li>一般来说，如果一加公司的PE只有收益增长率的一半,那这只股票赚钱的可能性就相当大。如果PE是收益增长率的两倍，那这只股票亏钱的可能新就相当大。比如一只股票的PE为20，如果收益增长率有40%,那就可以梭哈。&lt;/li>
+&lt;li>美股一般10-12月会有大量的卖出&lt;/li>
+&lt;/ul></description></item><item><title>Go_stock</title><link>https://churchmice.github.io/p/go_stock/</link><pubDate>Thu, 21 Mar 2024 09:07:42 +0800</pubDate><guid>https://churchmice.github.io/p/go_stock/</guid><description>&lt;h1 id="银行卡">银行卡&lt;/h1>
 &lt;p>持有以下三行&lt;/p>
 &lt;h2 id="汇丰">汇丰&lt;/h2>
 &lt;p>推荐，一地卓越，全球卓越，同名账户不同地的账户互转没有手续费
@@ -140,7 +144,10 @@ saving accout可以理解为定期账户，只能和checking account之间进行
 &lt;li>后续汇款可以直接汇美金出去，但是需要在早上9点前操作，这样才能在下午三点前完成审核并汇出，下午三点前走的中转行是香港汇丰，不会收取额外的手续费。如果是三点之后的话会走海外的花旗中转，有额外25美金的手续费。&lt;/li>
 &lt;li>汇款的时候备注填 &lt;strong>interbank by HSBCHKHH&lt;/strong> ,收款人开户银行账号或清算代码填 &lt;strong>HSBCHKHH&lt;/strong>, 收款行之代理行swift代码填 &lt;strong>HSBCHKHH&lt;/strong>。这个swift代码会被兴业补全成 &lt;strong>HSBCHKHHXXX&lt;/strong>.&lt;/li>
 &lt;li>汇款和非柜金额无关，我的账号非柜5w,但是我单笔1w美刀的汇款也成功了&lt;/li>
-&lt;/ul></description></item><item><title>CS Wangdao</title><link>https://churchmice.github.io/p/cs-wangdao/</link><pubDate>Sun, 17 Mar 2024 22:04:36 +0800</pubDate><guid>https://churchmice.github.io/p/cs-wangdao/</guid><description>&lt;p>虽然我不是CS的，但是王道系列起源于88，也算有点渊源，贴在这里就当存档吧。&lt;/p>
+&lt;/ul>
+&lt;p>以3/22为例，1w人民币为例，美元汇率7.20635,港币汇率0.921425,IBKR的港币汇率是7.82085
+如果直接换成美金出境，能换成1387.665美元
+如果换成港币出境，再在IBKR里面换成美金，能换成1387.670 -2 = 1385.670 美元&lt;/p></description></item><item><title>CS Wangdao</title><link>https://churchmice.github.io/p/cs-wangdao/</link><pubDate>Sun, 17 Mar 2024 22:04:36 +0800</pubDate><guid>https://churchmice.github.io/p/cs-wangdao/</guid><description>&lt;p>虽然我不是CS的，但是王道系列起源于88，也算有点渊源，贴在这里就当存档吧。&lt;/p>
 &lt;h1 id="考研回忆">考研回忆&lt;/h1>
 &lt;p>以前我天天都想自杀&lt;br>
 有一天我在天桥默默走著犹豫要不要直接跳下去的时候&lt;/p>
