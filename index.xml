@@ -57,7 +57,7 @@ hamming编码有一定的规则产生生成矩阵，示意图如下，其中Pn�
 &lt;h1 id="implementation">Implementation&lt;/h1>
 &lt;h2 id="sw">SW&lt;/h2>
 &lt;p>可以参见
-&lt;a href="https://github.com/aa876433/SECDED_hamming_code/tree/master" target="_blank">https://github.com/aa876433/SECDED_hamming_code/tree/master&lt;/a>
+&lt;a href="https://github.com/aa876433/SECDED_hamming_code" target="_blank">https://github.com/aa876433/SECDED_hamming_code&lt;/a>
 &lt;/p>
 &lt;h2 id="hw">HW&lt;/h2>
 &lt;p>可以参见
