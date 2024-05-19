@@ -1,4 +1,67 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Free at last</title><link>https://churchmice.github.io/</link><description>Recent content on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sat, 13 Apr 2024 19:38:28 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>爱在记忆消逝之前(一)</title><link>https://churchmice.github.io/p/%E7%88%B1%E5%9C%A8%E8%AE%B0%E5%BF%86%E6%B6%88%E9%80%9D%E4%B9%8B%E5%89%8D%E4%B8%80/</link><pubDate>Sat, 13 Apr 2024 19:38:28 +0800</pubDate><guid>https://churchmice.github.io/p/%E7%88%B1%E5%9C%A8%E8%AE%B0%E5%BF%86%E6%B6%88%E9%80%9D%E4%B9%8B%E5%89%8D%E4%B8%80/</guid><description>&lt;p>要说我生命中的姑娘，最早我觉得可以追溯到我没上小学那会，我记得那是我还住在场口老家的时候，有次隔壁的邻居摆摊，我就过去一起凑热闹，摆摊的是个很好看的小姐姐。&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Free at last</title><link>https://churchmice.github.io/</link><description>Recent content on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 19 May 2024 16:12:10 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/index.xml" rel="self" type="application/rss+xml"/><item><title>Secdec</title><link>https://churchmice.github.io/p/secdec/</link><pubDate>Sun, 19 May 2024 16:12:10 +0800</pubDate><guid>https://churchmice.github.io/p/secdec/</guid><description>&lt;h1 id="介绍">介绍&lt;/h1>
+&lt;p>SECDED是single error correction, double bit detection的简称，也就是可以纠正1比特的错误，能够检测2比特的错误。&lt;/p>
+&lt;h1 id="hamming-code">Hamming Code&lt;/h1>
+&lt;p>原理是借助了hamming code,distance是3，也就是说任意两个codeword之间的差距起码是3，hamming distance的计算方法就是对比两个codeword不一样的地方，并进行累加&lt;/p>
+&lt;div class="highlight">&lt;div class="chroma">
+&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
+&lt;/span>&lt;span class="lnt"> 2
+&lt;/span>&lt;span class="lnt"> 3
+&lt;/span>&lt;span class="lnt"> 4
+&lt;/span>&lt;span class="lnt"> 5
+&lt;/span>&lt;span class="lnt"> 6
+&lt;/span>&lt;span class="lnt"> 7
+&lt;/span>&lt;span class="lnt"> 8
+&lt;/span>&lt;span class="lnt"> 9
+&lt;/span>&lt;span class="lnt">10
+&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
+&lt;td class="lntd">
+&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">uint32&lt;/span> &lt;span class="nf">hamming_distance&lt;/span>&lt;span class="p">(&lt;/span> &lt;span class="n">unint32&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">unit32&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">uint32&lt;/span> &lt;span class="n">num&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">uint32&lt;/span> &lt;span class="n">diff&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">diff&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="o">^&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">diff&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">num&lt;/span> &lt;span class="o">++&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">diff&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">diff&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">diff&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="mi">1&lt;/span> &lt;span class="p">);&lt;/span> &lt;span class="c1">//remove the leading 1
+&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">num&lt;/span>&lt;span class="p">;&lt;/span>
+&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
+&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
+&lt;/div>
+&lt;/div>&lt;p>一般用m来表示编码后数据的长度,n来表征parity的bit数目
+一个典型的hamming(7,4)的意思是m=7,n=7-4=3,也就是原始消息长度是4,parity长度是3,编码后的消息长度是7.
+hamming编码有一定的规则产生生成矩阵，示意图如下，其中Pn代表parity, Dn代表的是数据
+&lt;img src="Pasted%20image%2020240519162034.png" alt="" />
+从这张图，我们不难发现如下规律&lt;/p>
+&lt;ul>
+&lt;li>Pn位于位置是2^i的地方，剩余的位置依次填充Dn&lt;/li>
+&lt;li>对于Pi行，如果index的i bit是1，则填充yes,否则填充No&lt;/li>
+&lt;li>从左到右, {p3,p2,p1}呈现从1到7依次递增的序列，这为后面的编码提供了基础&lt;/li>
+&lt;li>p1 = d1 ^ d2 ^ d4, p2 = d1 ^ d3 ^ d4, p3 = d2 ^ d3 ^ d4&lt;/li>
+&lt;li>解码的时候如果p1,p2,p3只有一个等式不成立，那出错的bit处于Pi上&lt;/li>
+&lt;li>解码的时候如果p1,p2,p3有超过一个等式不成立，那出错的bit处于Di上&lt;/li>
+&lt;li>如果 {p3,p2,p1} = x ( x != 0), 则依次很想查找{p3,p2,p1} =x的那一列，对应的列号就是出错的数据。例如，如果{p3,p2,p1}计算结果是6,那出错的数据就是d3,通过将d3进行flipping就可以把数据纠错回来。原因是p3=1,p2=1,所以出错的数据一定在同时可以被p2和p3 cover的行内，也就是d3和d4,如果是d4出错，那p1也会出错，所以只可能是d3.
+对于hamming distance =3的纠错码，只能进行1bit的记错，因为如果发生了2bit的错误，因为distance是3，有可能和另外一个码的distance是1从而导致误纠错。
+一般的，对于distance是m的纠错码，可纠错的bit数是(m-1)/2&lt;/li>
+&lt;/ul>
+&lt;h1 id="secded">SECDED&lt;/h1>
+&lt;p>为了能够实现检测两比特错误的功能，可以通过额外添加一比特全局parity来实现。
+还是以前面的例子为例，p4 = ^ { p1,p2,p3,d1,d2,d3,d4}
+解码的时候计算p1,p2,p3,p4&lt;/p>
+&lt;ul>
+&lt;li>^p4 == 0 : 但是p1,p2,p3有不为0的情况，这种时候就说明发生了两比特翻转的情况&lt;/li>
+&lt;li>^p4 == 0 : 并且p1,p2,p3也是0，这说明没有错误发生&lt;/li>
+&lt;li>^p4 == 1 : 并且p1,p2,p3有不为0的情况，这种时候说明发生了以比特的翻转&lt;/li>
+&lt;/ul>
+&lt;h1 id="implementation">Implementation&lt;/h1>
+&lt;h2 id="sw">SW&lt;/h2>
+&lt;p>可以参见
+&lt;a href="https://github.com/aa876433/SECDED_hamming_code/tree/master" target="_blank">https://github.com/aa876433/SECDED_hamming_code/tree/master&lt;/a>
+&lt;/p>
+&lt;h2 id="hw">HW&lt;/h2>
+&lt;p>可以参见
+&lt;a href="https://github.com/churchmice/secdec" target="_blank">https://github.com/churchmice/secdec&lt;/a>
+&lt;/p></description></item><item><title>爱在记忆消逝之前(一)</title><link>https://churchmice.github.io/p/%E7%88%B1%E5%9C%A8%E8%AE%B0%E5%BF%86%E6%B6%88%E9%80%9D%E4%B9%8B%E5%89%8D%E4%B8%80/</link><pubDate>Sat, 13 Apr 2024 19:38:28 +0800</pubDate><guid>https://churchmice.github.io/p/%E7%88%B1%E5%9C%A8%E8%AE%B0%E5%BF%86%E6%B6%88%E9%80%9D%E4%B9%8B%E5%89%8D%E4%B8%80/</guid><description>&lt;p>要说我生命中的姑娘，最早我觉得可以追溯到我没上小学那会，我记得那是我还住在场口老家的时候，有次隔壁的邻居摆摊，我就过去一起凑热闹，摆摊的是个很好看的小姐姐。&lt;/p>
 &lt;p>上了小学之后，我对于姑娘的喜欢标准其实就一个，那就是学习成绩好，现在想想也真是无语。所以小学时候就对成绩好的欧姑娘特别有好感，当时全班也起哄，我记得我俩一起唱过歌，最后有一个互相献哈达的场景，算是我俩最亲密的接触了。后来慢慢对欧姑娘失去了兴趣，说出来原因似乎也是很搞笑的。那个时候夏天都会午睡，一般是一个孩子睡桌子，一个孩子睡凳子。在某次午睡的时候我睡在凳子上，撇到了同样睡在凳子上的欧姑娘的红色内裤，这让我幼小的心灵受到了强烈的冲击：这么漂亮的姑娘怎么可以穿这么恶俗的红内裤？自那之后对欧姑娘慢慢就没有了感觉，或许也跟欧姑娘后来成绩慢慢变差有关。因为前面说了，我喜欢成绩好的姑娘。&lt;/p>
 &lt;p>日子辗转到了小学四年级，隔壁村的孩子并到了我们班里面上学，里面就出现了我第二个喜欢的姑娘，就叫赵姑娘吧。
 赵姑娘的特点是比较黑，像个假小子一样，经常会追着男生到处乱窜，毫不意外，我肯定是这些乱窜的男生中的一个。对赵姑娘更多的是暗恋，在小学毕业的那天，我和赵姑娘还有其他人一起留下来打扫卫生，我去倒垃圾，在倒垃圾回来的途中，我突然想到要去表白一下赵姑娘，路上有一些列的心理活动，至于最后为啥没表白，我已经不记得了，也算是小学时期的遗憾吧。&lt;/p>
