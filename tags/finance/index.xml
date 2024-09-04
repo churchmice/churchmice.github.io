@@ -32,46 +32,46 @@ saving accout可以理解为定期账户，只能和checking account之间进行
 &lt;table>
 &lt;thead>
 &lt;tr>
-&lt;th>券商&lt;/th>
-&lt;th>币种&lt;/th>
-&lt;th>方式&lt;/th>
-&lt;th>时效&lt;/th>
-&lt;th>手续费&lt;/th>
-&lt;th>说明&lt;/th>
+&lt;th style="text-align: left">券商&lt;/th>
+&lt;th style="text-align: left">币种&lt;/th>
+&lt;th style="text-align: left">方式&lt;/th>
+&lt;th style="text-align: left">时效&lt;/th>
+&lt;th style="text-align: left">手续费&lt;/th>
+&lt;th style="text-align: left">说明&lt;/th>
 &lt;/tr>
 &lt;/thead>
 &lt;tbody>
 &lt;tr>
-&lt;td>长桥&lt;/td>
-&lt;td>港币&lt;/td>
-&lt;td>eDDA&lt;/td>
-&lt;td>秒到&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
+&lt;td style="text-align: left">长桥&lt;/td>
+&lt;td style="text-align: left">港币&lt;/td>
+&lt;td style="text-align: left">eDDA&lt;/td>
+&lt;td style="text-align: left">秒到&lt;/td>
+&lt;td style="text-align: left">0&lt;/td>
+&lt;td style="text-align: left">&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>富途&lt;/td>
-&lt;td>港币&lt;/td>
-&lt;td>eDDA&lt;/td>
-&lt;td>秒到&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
+&lt;td style="text-align: left">富途&lt;/td>
+&lt;td style="text-align: left">港币&lt;/td>
+&lt;td style="text-align: left">eDDA&lt;/td>
+&lt;td style="text-align: left">秒到&lt;/td>
+&lt;td style="text-align: left">0&lt;/td>
+&lt;td style="text-align: left">&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>长桥&lt;/td>
-&lt;td>美金&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D0&lt;/td>
-&lt;td>50HKD&lt;/td>
-&lt;td>汇到的是工银亚洲，民生银证转账5分钟&lt;/td>
+&lt;td style="text-align: left">长桥&lt;/td>
+&lt;td style="text-align: left">美金&lt;/td>
+&lt;td style="text-align: left">E-banking&lt;/td>
+&lt;td style="text-align: left">D0&lt;/td>
+&lt;td style="text-align: left">50HKD&lt;/td>
+&lt;td style="text-align: left">汇到的是工银亚洲，民生银证转账5分钟&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>富途&lt;/td>
-&lt;td>美金&lt;/td>
-&lt;td>E-bankding&lt;/td>
-&lt;td>D0&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>直接汇到富途汇丰账号&lt;/td>
+&lt;td style="text-align: left">富途&lt;/td>
+&lt;td style="text-align: left">美金&lt;/td>
+&lt;td style="text-align: left">E-bankding&lt;/td>
+&lt;td style="text-align: left">D0&lt;/td>
+&lt;td style="text-align: left">0&lt;/td>
+&lt;td style="text-align: left">直接汇到富途汇丰账号&lt;/td>
 &lt;/tr>
 &lt;/tbody>
 &lt;/table>
@@ -79,46 +79,46 @@ saving accout可以理解为定期账户，只能和checking account之间进行
 &lt;table>
 &lt;thead>
 &lt;tr>
-&lt;th>券商&lt;/th>
-&lt;th>币种&lt;/th>
-&lt;th>方式&lt;/th>
-&lt;th>时效&lt;/th>
-&lt;th>手续费&lt;/th>
-&lt;th>说明&lt;/th>
+&lt;th style="text-align: left">券商&lt;/th>
+&lt;th style="text-align: left">币种&lt;/th>
+&lt;th style="text-align: left">方式&lt;/th>
+&lt;th style="text-align: left">时效&lt;/th>
+&lt;th style="text-align: left">手续费&lt;/th>
+&lt;th style="text-align: left">说明&lt;/th>
 &lt;/tr>
 &lt;/thead>
 &lt;tbody>
 &lt;tr>
-&lt;td>长桥&lt;/td>
-&lt;td>港币&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D1&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
+&lt;td style="text-align: left">长桥&lt;/td>
+&lt;td style="text-align: left">港币&lt;/td>
+&lt;td style="text-align: left">E-banking&lt;/td>
+&lt;td style="text-align: left">D1&lt;/td>
+&lt;td style="text-align: left">0&lt;/td>
+&lt;td style="text-align: left">&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>富途&lt;/td>
-&lt;td>港币&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D1&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
+&lt;td style="text-align: left">富途&lt;/td>
+&lt;td style="text-align: left">港币&lt;/td>
+&lt;td style="text-align: left">E-banking&lt;/td>
+&lt;td style="text-align: left">D1&lt;/td>
+&lt;td style="text-align: left">0&lt;/td>
+&lt;td style="text-align: left">&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>长桥&lt;/td>
-&lt;td>美金&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D1&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
+&lt;td style="text-align: left">长桥&lt;/td>
+&lt;td style="text-align: left">美金&lt;/td>
+&lt;td style="text-align: left">E-banking&lt;/td>
+&lt;td style="text-align: left">D1&lt;/td>
+&lt;td style="text-align: left">0&lt;/td>
+&lt;td style="text-align: left">&lt;/td>
 &lt;/tr>
 &lt;tr>
-&lt;td>富途&lt;/td>
-&lt;td>美金&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D1&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
+&lt;td style="text-align: left">富途&lt;/td>
+&lt;td style="text-align: left">美金&lt;/td>
+&lt;td style="text-align: left">E-banking&lt;/td>
+&lt;td style="text-align: left">D1&lt;/td>
+&lt;td style="text-align: left">0&lt;/td>
+&lt;td style="text-align: left">&lt;/td>
 &lt;/tr>
 &lt;/tbody>
 &lt;/table>
