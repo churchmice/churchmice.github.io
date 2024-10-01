@@ -1,44 +1,44 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linux on Free at last</title><link>https://churchmice.github.io/tags/linux/</link><description>Recent content in Linux on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 17 Mar 2024 14:00:22 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml"/><item><title>FPGA Bot</title><link>https://churchmice.github.io/p/fpga-bot/</link><pubDate>Sun, 17 Mar 2024 14:00:22 +0800</pubDate><guid>https://churchmice.github.io/p/fpga-bot/</guid><description>&lt;h2 id="起因">起因&lt;/h2>
-&lt;p>公司的服务器如果需要外发需要走外发申请(至安盾),需要有人审批之后才可以将文件进行放行。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Linux on Free at last</title><link>https://churchmice.github.io/tags/linux/</link><description>Recent content in Linux on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 17 Mar 2024 14:00:22 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/tags/linux/index.xml" rel="self" type="application/rss+xml"/><item><title>FPGA Bot</title><link>https://churchmice.github.io/p/fpga-bot/</link><pubDate>Sun, 17 Mar 2024 14:00:22 +0800</pubDate><guid>https://churchmice.github.io/p/fpga-bot/</guid><description>&lt;h2 id="起因">起因
+&lt;/h2>&lt;p>公司的服务器如果需要外发需要走外发申请(至安盾),需要有人审批之后才可以将文件进行放行。
 FPGA编译是在服务器上进行的,而且经常需要出一些调试版本，如果编译一次就走一遍外发申请的flow，那将是相当废时间的。所以是想用一种自动的方法可以将FPGA编译完成的内容直接让用户可以下载。&lt;/p>
-&lt;h1 id="原理">原理&lt;/h1>
-&lt;p>这个问题其实分几步走，原理其实和trustzone都有点类似，就是提供一种类似secure monitor的机制，接受用户提交的编译请求，编译完了就自动把文件拷贝到ftp的下载路径下，这样用户就可以直接通过ftp下载编译好的文件了。&lt;/p>
-&lt;h2 id="ftp">ftp&lt;/h2>
-&lt;p>用的是vsftp,只允许匿名用户下载，不允许上传。请注意千万不要把其他用户的ftp权限打开，尤其是不能打开chroot功能，否则用户就可以直接下载home目录里面的内容了。ftp的下载路径对应于服务器上的/var/ftp目录，在这个下面新建一个bitfile的文件夹，只允许bot用户有写权限。&lt;/p>
-&lt;h2 id="fpga-auto-build">fpga auto build&lt;/h2>
-&lt;p>一开始想用setuid来做的，虽然可以通过wrapper的方式让perl脚本以setuid的形式运行(EID != UID),但是在perl脚本里面如果还要调用其他脚本（是脚本，不是binary)那么这个setuid就会失效，除非也用类似binary wrapper的方式一层层套用下去。但是问题在于很多EDA工具和用户的接口其实也是个脚本文件，这样套壳的工作量就很大。
+&lt;h1 id="原理">原理
+&lt;/h1>&lt;p>这个问题其实分几步走，原理其实和trustzone都有点类似，就是提供一种类似secure monitor的机制，接受用户提交的编译请求，编译完了就自动把文件拷贝到ftp的下载路径下，这样用户就可以直接通过ftp下载编译好的文件了。&lt;/p>
+&lt;h2 id="ftp">ftp
+&lt;/h2>&lt;p>用的是vsftp,只允许匿名用户下载，不允许上传。请注意千万不要把其他用户的ftp权限打开，尤其是不能打开chroot功能，否则用户就可以直接下载home目录里面的内容了。ftp的下载路径对应于服务器上的/var/ftp目录，在这个下面新建一个bitfile的文件夹，只允许bot用户有写权限。&lt;/p>
+&lt;h2 id="fpga-auto-build">fpga auto build
+&lt;/h2>&lt;p>一开始想用setuid来做的，虽然可以通过wrapper的方式让perl脚本以setuid的形式运行(EID != UID),但是在perl脚本里面如果还要调用其他脚本（是脚本，不是binary)那么这个setuid就会失效，除非也用类似binary wrapper的方式一层层套用下去。但是问题在于很多EDA工具和用户的接口其实也是个脚本文件，这样套壳的工作量就很大。
 接着想到了代理的方式，就是用户提交过来的命令通过http的形式发送给server,server运行在root模式下，可以通过一些手段确定这个命令的确是这个用户提交的，然后su到bot执行命令。这种方式的问题是bot在编译过程中产生的一些终端输出无法实时的给到用户，而且如果要给的话其实要对cmd_server做进一步的加工。
 最后想到的是直接用sudo来做，这种方式的话需要在/etc/sudoers里面严格限定用户可以让bot用户sudo的命令。当然为了安全起见，限定了只有在特定组别的用户才能执行sudo命令。&lt;/p>
-&lt;h1 id="接口">接口&lt;/h1>
-&lt;p>最终提供给用户的是一个bot.cfg的配置文件，用户可以在这个配置文件里面进行配置，比如filelist的路径，xdc的路径等。配置完之后用户执行fpga_bot -c bot.cfg之后就会开始自动编译。&lt;/p>
-&lt;h2 id="安全">安全&lt;/h2>
-&lt;p>需要注意如下一些安全事项&lt;/p>
+&lt;h1 id="接口">接口
+&lt;/h1>&lt;p>最终提供给用户的是一个bot.cfg的配置文件，用户可以在这个配置文件里面进行配置，比如filelist的路径，xdc的路径等。配置完之后用户执行fpga_bot -c bot.cfg之后就会开始自动编译。&lt;/p>
+&lt;h2 id="安全">安全
+&lt;/h2>&lt;p>需要注意如下一些安全事项&lt;/p>
 &lt;ul>
 &lt;li>sudo bot只允许特定用户组调用特定命令,可以在/etc/sudoers文件里面加以限制&lt;/li>
 &lt;li>要防止FPGA编译的tcl文件里面调用exec函数，在编译之前会用脚本去扫描用户提供的tcl文件里面调用的命令，现在采用的是白名单机制，只允许read_xdc和read_ip这两条。&lt;/li>
 &lt;li>vsftp配置只允许anonymous登录，只允许下载，不允许上传&lt;/li>
-&lt;/ul></description></item><item><title>Building EDA server from scratch</title><link>https://churchmice.github.io/p/eda-server/</link><pubDate>Sun, 03 Mar 2024 13:06:43 +0800</pubDate><guid>https://churchmice.github.io/p/eda-server/</guid><description>&lt;h1 id="前言">前言&lt;/h1>
-&lt;p>在&lt;strong>老和山&lt;/strong>职业技术学院读书的时候就开始从事实验室的兼职网管，负责实验室的网络建设以及服务器的维护，也是时候写个文章把攒了这么多年的知识科普一下。&lt;/p>
-&lt;h2 id="硬件">硬件&lt;/h2>
-&lt;ul>
+&lt;/ul></description></item><item><title>Building EDA server from scratch</title><link>https://churchmice.github.io/p/eda-server/</link><pubDate>Sun, 03 Mar 2024 13:06:43 +0800</pubDate><guid>https://churchmice.github.io/p/eda-server/</guid><description>&lt;h1 id="前言">前言
+&lt;/h1>&lt;p>在&lt;strong>老和山&lt;/strong>职业技术学院读书的时候就开始从事实验室的兼职网管，负责实验室的网络建设以及服务器的维护，也是时候写个文章把攒了这么多年的知识科普一下。&lt;/p>
+&lt;h2 id="硬件">硬件
+&lt;/h2>&lt;ul>
 &lt;li>&lt;strong>portal&lt;/strong>: 登录服务器，也是终端用户唯一可以访问的机器&lt;/li>
 &lt;li>&lt;strong>core&lt;/strong>: 核心服务器，上面部署了ipa,jenkins,gitlab,jira,sungrid等服务&lt;/li>
 &lt;li>&lt;strong>grid00&lt;/strong>: 运算服务器1，用作sungrid的computing node&lt;/li>
 &lt;li>&lt;strong>grid01&lt;/strong>: 运算服务器2，用作sungrid的computing node&lt;/li>
 &lt;li>&lt;strong>netapp&lt;/strong>: 存储服务器，做芯片的一般就用netapp&lt;/li>
 &lt;/ul>
-&lt;h2 id="网络配置">网络配置&lt;/h2>
-&lt;p>参考的网络拓扑如下&lt;/p>
+&lt;h2 id="网络配置">网络配置
+&lt;/h2>&lt;p>参考的网络拓扑如下&lt;/p>
 &lt;ul>
 &lt;li>一个内网段 &lt;strong>10.0.2.0/24&lt;/strong> (用于服务器之间的通信)&lt;/li>
 &lt;li>一个外网IP &lt;strong>192.168.5.100&lt;/strong> 用于终端客户的访问&lt;/li>
 &lt;li>自定义域名: ic.X.com&lt;/li>
 &lt;/ul>
-&lt;h2 id="系统安装">系统安装&lt;/h2>
-&lt;p>系统推荐用centos 7.9, 当然也可以用最新的centos 8 stream。在某些最新的server上面，硬件已经不支持centos 7了，所以只能装centos 8. 8和7的系统稍微在配置上稍微有一些差别。
+&lt;h2 id="系统安装">系统安装
+&lt;/h2>&lt;p>系统推荐用centos 7.9, 当然也可以用最新的centos 8 stream。在某些最新的server上面，硬件已经不支持centos 7了，所以只能装centos 8. 8和7的系统稍微在配置上稍微有一些差别。
 安装的时候把一些开发者工具都给装上可以避免后续很多问题。&lt;/p>
-&lt;h3 id="portal">portal&lt;/h3>
-&lt;p>对外的网卡 ext: ip 配置成 192.168.5.100&lt;br>
+&lt;h3 id="portal">portal
+&lt;/h3>&lt;p>对外的网卡 ext: ip 配置成 192.168.5.100&lt;br>
 对内的网卡 int: ip 配置成 10.0.2.1&lt;br>
 配置网卡的时候一些注意事项&lt;/p>
 &lt;ul>
@@ -60,22 +60,22 @@ FPGA编译是在服务器上进行的,而且经常需要出一些调试版本，
 &lt;li>将文件里面的DEVICE和NAME修改为new_name&lt;/li>
 &lt;li>HWADDR需要修改成网卡的真实地址&lt;/li>
 &lt;/ul>
-&lt;h3 id="core">core&lt;/h3>
-&lt;p>网卡 int: ip 配置成10.0.2.100
+&lt;h3 id="core">core
+&lt;/h3>&lt;p>网卡 int: ip 配置成10.0.2.100
 额外注意事项&lt;/p>
 &lt;ul>
 &lt;li>该机器最后会当做flexlm的license server,有些license daemon是挑网卡名字的，比如TSMC的一定要求网卡的名字是&lt;strong>eth&lt;/strong> 打头，所以请至少保留一块网卡地址用这个名字&lt;/li>
 &lt;li>如果有改MAC地址需求的，需要再ifcfg-&lt;em>xx&lt;/em> 里面需要用&lt;strong>HWADDR&lt;/strong>指定网卡之前的MAC地址，让后用&lt;strong>MACADDR&lt;/strong>指明需要更改的MAC地址&lt;/li>
 &lt;/ul>
-&lt;h3 id="grid00">grid00&lt;/h3>
-&lt;p>网卡 int: ip 配置成 10.0.2.10&lt;/p>
-&lt;h3 id="grid01">grid01&lt;/h3>
-&lt;p>网卡 int: ip 配置成 10.0.2.12&lt;/p>
-&lt;h3 id="netapp">netapp&lt;/h3>
-&lt;p>取决于买的型号类型，一般需要配置业务口和管理口，后者仅用于管理功能，带宽需求不大。业务口的话推荐做链路聚合。&lt;/p>
-&lt;h2 id="软件安装及配置">软件安装及配置&lt;/h2>
-&lt;h3 id="ssh-免密登录">ssh 免密登录&lt;/h3>
-&lt;p>首先产生密钥对&lt;/p>
+&lt;h3 id="grid00">grid00
+&lt;/h3>&lt;p>网卡 int: ip 配置成 10.0.2.10&lt;/p>
+&lt;h3 id="grid01">grid01
+&lt;/h3>&lt;p>网卡 int: ip 配置成 10.0.2.12&lt;/p>
+&lt;h3 id="netapp">netapp
+&lt;/h3>&lt;p>取决于买的型号类型，一般需要配置业务口和管理口，后者仅用于管理功能，带宽需求不大。业务口的话推荐做链路聚合。&lt;/p>
+&lt;h2 id="软件安装及配置">软件安装及配置
+&lt;/h2>&lt;h3 id="ssh-免密登录">ssh 免密登录
+&lt;/h3>&lt;p>首先产生密钥对&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -94,8 +94,8 @@ FPGA编译是在服务器上进行的,而且经常需要出一些调试版本，
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">ssh-copy-id -i eda25519.pub core
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h3 id="ntp">NTP&lt;/h3>
-&lt;p>使用chrony
+&lt;/div>&lt;h3 id="ntp">NTP
+&lt;/h3>&lt;p>使用chrony
 portal作为NTP server,提供定时服务给到10.0.2.0/24网段&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -146,10 +146,10 @@ portal作为NTP server,提供定时服务给到10.0.2.0/24网段&lt;/p>
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">logdir /var/log/chrony
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h3 id="ipa">IPA&lt;/h3>
-&lt;p>这个是一个认证服务器，大家可能听说过nis,nisplus,yellowpage,ldap其实本质都是一个东西，只不过扩展性不一样。IPA的话其实底层走的还是ldap那一套,只不过集成了管理界面，对用户更加友好。&lt;/p>
-&lt;h4 id="server安装">server安装&lt;/h4>
-&lt;div class="highlight">&lt;div class="chroma">
+&lt;/div>&lt;h3 id="ipa">IPA
+&lt;/h3>&lt;p>这个是一个认证服务器，大家可能听说过nis,nisplus,yellowpage,ldap其实本质都是一个东西，只不过扩展性不一样。IPA的话其实底层走的还是ldap那一套,只不过集成了管理界面，对用户更加友好。&lt;/p>
+&lt;h4 id="server安装">server安装
+&lt;/h4>&lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
 &lt;/span>&lt;/code>&lt;/pre>&lt;/td>
@@ -160,8 +160,8 @@ portal作为NTP server,提供定时服务给到10.0.2.0/24网段&lt;/p>
 &lt;/div>&lt;p>注意其中的&lt;code>idstart&lt;/code> ，根据情况自己修改
 安装过程中会提示admin password和directory manager的password
 安装过程会提示上游DNS,填10.0.2.1&lt;/p>
-&lt;h4 id="client安装">client安装&lt;/h4>
-&lt;p>以grid00为例&lt;/p>
+&lt;h4 id="client安装">client安装
+&lt;/h4>&lt;p>以grid00为例&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -170,8 +170,8 @@ portal作为NTP server,提供定时服务给到10.0.2.0/24网段&lt;/p>
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">ipa-client-install --server&lt;span class="o">=&lt;/span>core.ic.X.com --domain&lt;span class="o">=&lt;/span>grid00.ic.X.com -N --enable-dns-updates --hostname&lt;span class="o">=&lt;/span>grid00.ic.X.com
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h4 id="ssl-证书">SSL 证书&lt;/h4>
-&lt;p>在IPA server的安装过程中，会将产生的root CA放在/root/cacert.p12下面，可以用
+&lt;/div>&lt;h4 id="ssl-证书">SSL 证书
+&lt;/h4>&lt;p>在IPA server的安装过程中，会将产生的root CA放在/root/cacert.p12下面，可以用
 &lt;a href="https://hohnstaedt.de/xca/" target="_blank">xca&lt;/a>
 导入进行管理，以后可以用这个root CA签名新的证书。导入过程中会提示你输入密码，这个密码就是安装过程中输入的admin password。
 都已经2024年了，推荐所有的服务都上https&lt;/p>
@@ -187,9 +187,9 @@ windows电脑登录的时候会跳出一个认证框，这是因为windows支持
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">BrowserMatch&lt;/span> Windows gssapi-no-negotiate
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h4 id="常见操作">常见操作&lt;/h4>
-&lt;h5 id="增加一个dns解析">增加一个DNS解析&lt;/h5>
-&lt;p>如果你只是想增加一个DNS解析的话，可以使用下面的命令（将gitlab.ic.X.com解析成10.0.2.100）&lt;/p>
+&lt;/div>&lt;h4 id="常见操作">常见操作
+&lt;/h4>&lt;h5 id="增加一个dns解析">增加一个DNS解析
+&lt;/h5>&lt;p>如果你只是想增加一个DNS解析的话，可以使用下面的命令（将gitlab.ic.X.com解析成10.0.2.100）&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -198,8 +198,8 @@ windows电脑登录的时候会跳出一个认证框，这是因为windows支持
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">ipa dnsrecord-add ic.X.com. --name gitlab --a-rec 10.0.2.100
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h5 id="缓存刷新">缓存刷新&lt;/h5>
-&lt;p>刷新IPA缓存&lt;/p>
+&lt;/div>&lt;h5 id="缓存刷新">缓存刷新
+&lt;/h5>&lt;p>刷新IPA缓存&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -217,8 +217,8 @@ windows电脑登录的时候会跳出一个认证框，这是因为windows支持
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">systemctl restart sssd
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h3 id="dns-解析">DNS 解析&lt;/h3>
-&lt;p>在portal上面安装dnsmasq并指定上游，例如 114
+&lt;/div>&lt;h3 id="dns-解析">DNS 解析
+&lt;/h3>&lt;p>在portal上面安装dnsmasq并指定上游，例如 114
 修改所有机器的 /etc/resolv.conf&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -244,8 +244,8 @@ public_dns ->> portal: query result for www.baidu.com
 portal ->> core: query result for www.baidu.com
 core ->> grid00: query result for www.baidu.com
 &lt;/pre>
-&lt;h3 id="netapp-1">netapp&lt;/h3>
-&lt;p>将netapp的目录以NFS的方式挂载到各台机器上，建议挂载分区如下&lt;/p>
+&lt;h3 id="netapp-1">netapp
+&lt;/h3>&lt;p>将netapp的目录以NFS的方式挂载到各台机器上，建议挂载分区如下&lt;/p>
 &lt;ul>
 &lt;li>/proj: 项目相关的文件&lt;/li>
 &lt;li>/tools: EDA工具&lt;/li>
@@ -271,8 +271,8 @@ core ->> grid00: query result for www.baidu.com
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">system node halt -node * -skip-lif-migration-before-shutdown &lt;span class="nb">true&lt;/span> -ignore-quorum-warnings &lt;span class="nb">true&lt;/span> -inhibit-takeover &lt;span class="nb">true&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h3 id="gcc">gcc&lt;/h3>
-&lt;p>系统如果要安装多个gcc版本，建议下载源码解压之后用如下方式进行编译&lt;/p>
+&lt;/div>&lt;h3 id="gcc">gcc
+&lt;/h3>&lt;p>系统如果要安装多个gcc版本，建议下载源码解压之后用如下方式进行编译&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -290,8 +290,8 @@ core ->> grid00: query result for www.baidu.com
 &lt;/div>&lt;p>版本之间的切换可以用
 &lt;a href="https://modules.readthedocs.io/en/latest/" target="_blank">modules&lt;/a>
 进行管理。&lt;/p>
-&lt;h3 id="sungrid">sungrid&lt;/h3>
-&lt;p>sungrid是一个开源的集群运算软件，在core上执行&lt;/p>
+&lt;h3 id="sungrid">sungrid
+&lt;/h3>&lt;p>sungrid是一个开源的集群运算软件，在core上执行&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -309,8 +309,8 @@ core ->> grid00: query result for www.baidu.com
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> /opt/sge &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> ./start_gui_installer
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h3 id="gitlab">gitlab&lt;/h3>
-&lt;p>
+&lt;/div>&lt;h3 id="gitlab">gitlab
+&lt;/h3>&lt;p>
 &lt;a href="https://about.gitlab.com/" target="_blank">gitlab&lt;/a>
 是一个可以私有部署的程序员内部交友网站，主要的配置文件是/etc/gitlab/gitlab.rb。
 最重要的数据文件推荐放在netapp的存储上面，备份文件建议放在core的本地存储上面，对应的配置如下&lt;/p>
@@ -349,8 +349,8 @@ core ->> grid00: query result for www.baidu.com
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gitlab-ctl reconfigure
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h4 id="ssl">ssl&lt;/h4>
-&lt;p>要将CA放到 &lt;strong>/etc/gitlab/trusted-certs&lt;/strong> 下面
+&lt;/div>&lt;h4 id="ssl">ssl
+&lt;/h4>&lt;p>要将CA放到 &lt;strong>/etc/gitlab/trusted-certs&lt;/strong> 下面
 修改gitlab.rb,关键配置如下&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -385,8 +385,8 @@ core ->> grid00: query result for www.baidu.com
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">RewriteRule&lt;/span> ^/gitlab https://core.ic.X.com:1024 [L,R=301]
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h4 id="ldap">ldap&lt;/h4>
-&lt;p>修改gitlab.rb.关键配置如下&lt;/p>
+&lt;/div>&lt;h4 id="ldap">ldap
+&lt;/h4>&lt;p>修改gitlab.rb.关键配置如下&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
@@ -468,16 +468,16 @@ core ->> grid00: query result for www.baidu.com
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gitlab-rake gitlab:ladap:check
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h4 id="migration">migration&lt;/h4>
-&lt;p>可以用如下的方式进行迁移&lt;/p>
+&lt;/div>&lt;h4 id="migration">migration
+&lt;/h4>&lt;p>可以用如下的方式进行迁移&lt;/p>
 &lt;ol>
 &lt;li>进入旧文件夹，git remote 解除远端reposity的绑定&lt;/li>
 &lt;li>git remote 添加新远端repository&lt;/li>
 &lt;li>git push&lt;/li>
 &lt;/ol>
-&lt;h3 id="jenkins">jenkins&lt;/h3>
-&lt;h4 id="ssl-1">ssl&lt;/h4>
-&lt;p>jenkins用的是java那一套，所以ssl的支持稍微麻烦一点。
+&lt;h3 id="jenkins">jenkins
+&lt;/h3>&lt;h4 id="ssl-1">ssl
+&lt;/h4>&lt;p>jenkins用的是java那一套，所以ssl的支持稍微麻烦一点。
 CA: &lt;strong>update-ca-trust&lt;/strong> 本身就已经产生了java需要的CA,具体的路径是 &lt;strong>/etc/pki/ca-trust/extracted/java/cacerts&lt;/strong>
 https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,其中changeit是证书导出的时候设置的密码&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
@@ -533,8 +533,8 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">WantedBy=multi-user&lt;/span>.&lt;span class="nb">target&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h4 id="ldap-1">ldap&lt;/h4>
-&lt;p>需要安装ldap插件，&lt;strong>/home/jenkins/config.xml&lt;/strong> 里面的关键配置信息如下&lt;/p>
+&lt;/div>&lt;h4 id="ldap-1">ldap
+&lt;/h4>&lt;p>需要安装ldap插件，&lt;strong>/home/jenkins/config.xml&lt;/strong> 里面的关键配置信息如下&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
@@ -596,8 +596,8 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-xml" data-lang="xml">&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;useSecurity&amp;gt;&lt;/span>true&lt;span class="nt">&amp;lt;/useSecurity&amp;gt;&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h3 id="etx">ETX&lt;/h3>
-&lt;p>这是一个服务器登录软件。推荐
+&lt;/div>&lt;h3 id="etx">ETX
+&lt;/h3>&lt;p>这是一个服务器登录软件。推荐
 &lt;a href="https://www.opentext.nl/products-and-solutions/products/specialty-technologies/connectivity/exceed-ondemand" target="_blank">EXT&lt;/a>
 ，吊打一切牛鬼蛇神，主要优势有以下几个&lt;/p>
 &lt;ul>
@@ -607,16 +607,16 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;li>集成ldap认证，可对用户登录以及可见的profile做限制
 当然他的缺点也是显而易见的，那就是需要花钱购买。这公司的销售人员也是非常了解国情，默认都是提供买断的license服务，一次购买，终身可用，然后单个license的价格还是不便宜。&lt;/li>
 &lt;/ul>
-&lt;h4 id="server">server&lt;/h4>
-&lt;p>建议安装在core上面，然后通过端口映射的方式映射到portal的8443端口&lt;/p>
-&lt;h4 id="node">node&lt;/h4>
-&lt;p>建议安装在portal上面，默认端口是5510
+&lt;h4 id="server">server
+&lt;/h4>&lt;p>建议安装在core上面，然后通过端口映射的方式映射到portal的8443端口&lt;/p>
+&lt;h4 id="node">node
+&lt;/h4>&lt;p>建议安装在portal上面，默认端口是5510
 添加node的时候选择10.0.2.1,端口5510,然后再client IP里面进行重映射，比如192.168.5.100:5510&lt;/p>
-&lt;h4 id="ssl-2">ssl&lt;/h4>
-&lt;p>如果要增加ssl支持，需要修改 &lt;strong>$INSTALL_DIR/data/ssl&lt;/strong> 里面的 &lt;strong>server.key&lt;/strong> 和&lt;strong>server.crt&lt;/strong>. 可以用前文提到的xca工具生成，懒人的话建议生成通配符证书即可。
+&lt;h4 id="ssl-2">ssl
+&lt;/h4>&lt;p>如果要增加ssl支持，需要修改 &lt;strong>$INSTALL_DIR/data/ssl&lt;/strong> 里面的 &lt;strong>server.key&lt;/strong> 和&lt;strong>server.crt&lt;/strong>. 可以用前文提到的xca工具生成，懒人的话建议生成通配符证书即可。
 另外其实在linux上面做ETX的多开很容易，文件夹复制黏贴改个名字就行了。Windows node 复制黏贴比较麻烦，暂时还没有花精力去搞。至于为何要多开？那当然是解决license个数不足的问题了。&lt;/p>
-&lt;h3 id="flexlm">flexlm&lt;/h3>
-&lt;p>几乎所有的eda工具都是用flexlm来管理的，这个和谐方式也是各式各样。有一些注意事项&lt;/p>
+&lt;h3 id="flexlm">flexlm
+&lt;/h3>&lt;p>几乎所有的eda工具都是用flexlm来管理的，这个和谐方式也是各式各样。有一些注意事项&lt;/p>
 &lt;ol>
 &lt;li>允许在同一个端口上起多个vendor的license daemon,比如你可以把不同家的license文件里面的端口都改成一样的，然后lmgrd一起启动&lt;/li>
 &lt;li>一些和谐版的license daemon会有相互打架的情况，所以1的前提就不成立了&lt;/li>
@@ -624,8 +624,8 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;li>license文件可以进行复制操作，比如你只买了10个正版license，如何扩展成100个，土鳖一点的方法就是用虚拟机多开，修改MAC地址。但是其实不用这么麻烦的，你在一台机器上也有办法实现开N个相同的vendor daemon的。
 由于可能不是那么众所周知的原因，宝岛台湾的一些工具是不使用flexlm管理的。个人推测一方面是成本考虑，另一方面是因为他们知道flexlm的license很容易被和谐，又不像大厂可以承受被破解的代价，所以就自己开发了一套软件授权管理工具。&lt;/li>
 &lt;/ol>
-&lt;h3 id="mirror">mirror&lt;/h3>
-&lt;p>在core上面设置centos的mirror,portal通过rsync的方式将外部的mirror同步到core上
+&lt;h3 id="mirror">mirror
+&lt;/h3>&lt;p>在core上面设置centos的mirror,portal通过rsync的方式将外部的mirror同步到core上
 一个简单的用perl写的同步脚本如下&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
@@ -815,27 +815,27 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h2 id="安全设置">安全设置&lt;/h2>
-&lt;h3 id="selinux">selinux&lt;/h3>
-&lt;p>这个东西很好，但是也很麻烦，如果不是很会折腾，建议关闭:&lt;/p>
+&lt;/div>&lt;h2 id="安全设置">安全设置
+&lt;/h2>&lt;h3 id="selinux">selinux
+&lt;/h3>&lt;p>这个东西很好，但是也很麻烦，如果不是很会折腾，建议关闭:&lt;/p>
 &lt;blockquote>
 &lt;p>编辑 /etc/sysconfig/selinux, 将里面的SELINUX更改成disabled，然后重启&lt;/p>
 &lt;/blockquote>
-&lt;h3 id="ssh限制">ssh限制&lt;/h3>
-&lt;p>需要在/etc/ssh/sshd_config里面做如下配置&lt;/p>
+&lt;h3 id="ssh限制">ssh限制
+&lt;/h3>&lt;p>需要在/etc/ssh/sshd_config里面做如下配置&lt;/p>
 &lt;ul>
 &lt;li>普通用户关闭ssh登录权限&lt;/li>
 &lt;li>打开core上的git登录权限，这是为了使用ssh进行git的checkout&lt;/li>
 &lt;li>只允许基于ssh key的登录方式，这是为了防止MTIM攻击&lt;/li>
 &lt;/ul>
-&lt;h3 id="防火墙配置">防火墙配置&lt;/h3>
-&lt;p>内网的机器可以把防火墙都关掉&lt;br>
+&lt;h3 id="防火墙配置">防火墙配置
+&lt;/h3>&lt;p>内网的机器可以把防火墙都关掉&lt;br>
 portal上面的防火墙只开放必要的端口，INPUT/OUTPUT/FORWARD的policy都设置成DROP&lt;br>
 portal作为登录机器是不允许跑EDA软件的，所以在core的防火墙上面要阻止来自portal的license请求&lt;br>
 另外需要注意虚拟机的网络是不受iptables控制的，所以在portal上绝对绝对不要装虚拟机软件，不让网络无法管控&lt;/p>
-&lt;h3 id="etx-配置">ETX 配置&lt;/h3>
-&lt;h4 id="限制最大拷贝数">限制最大拷贝数&lt;/h4>
-&lt;p>profile -&amp;gt; general -&amp;gt; optional settings 里面添加如下配置（最大只允许拷贝512个字符)&lt;/p>
+&lt;h3 id="etx-配置">ETX 配置
+&lt;/h3>&lt;h4 id="限制最大拷贝数">限制最大拷贝数
+&lt;/h4>&lt;p>profile -&amp;gt; general -&amp;gt; optional settings 里面添加如下配置（最大只允许拷贝512个字符)&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
@@ -844,10 +844,10 @@ portal作为登录机器是不允许跑EDA软件的，所以在core的防火墙�
 &lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">proxy&lt;/span>.&lt;span class="err">AllowCopyFromX=512&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h4 id="限制用户编辑profile">限制用户编辑profile&lt;/h4>
-&lt;p>如果允许用户自己编辑profile,他就可以设置一个profile允许上传和下载，这无疑是有问题的&lt;/p>
-&lt;h3 id="邮件发送">邮件发送&lt;/h3>
-&lt;p>jenkins/gitlab等都有发送邮件的需求，但是core本身是无法连接外网的，解决方法就是要借助core
+&lt;/div>&lt;h4 id="限制用户编辑profile">限制用户编辑profile
+&lt;/h4>&lt;p>如果允许用户自己编辑profile,他就可以设置一个profile允许上传和下载，这无疑是有问题的&lt;/p>
+&lt;h3 id="邮件发送">邮件发送
+&lt;/h3>&lt;p>jenkins/gitlab等都有发送邮件的需求，但是core本身是无法连接外网的，解决方法就是要借助core
 需要有一个专门的邮件账号用来发邮件（&lt;em>jarvis&lt;/em>)，这个账号只能开放smtp功能，不能开放 imap功能，这主要是为了防止有用户发完邮件又通过imap将发送邮件删除，从而销毁证据&lt;br>
 具体步骤如下&lt;/p>
 &lt;ol>
@@ -890,8 +890,8 @@ portal作为登录机器是不允许跑EDA软件的，所以在core的防火墙�
 &lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">}&lt;/span>
 &lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
 &lt;/div>
-&lt;/div>&lt;h3 id="目录夹权限">目录夹权限&lt;/h3>
-&lt;p>下面这些文件夹需要设置合适的权限保证普通用户无法看到&lt;/p>
+&lt;/div>&lt;h3 id="目录夹权限">目录夹权限
+&lt;/h3>&lt;p>下面这些文件夹需要设置合适的权限保证普通用户无法看到&lt;/p>
 &lt;ul>
 &lt;li>/proj/git: 里面存放了git的database&lt;/li>
 &lt;li>/proj/xxx: 只有处于项目组xxx里面的人才能进入&lt;/li>

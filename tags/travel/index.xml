@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Travel on Free at last</title><link>https://churchmice.github.io/tags/travel/</link><description>Recent content in Travel on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 19 May 2024 16:12:10 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/tags/travel/index.xml" rel="self" type="application/rss+xml"/><item><title>SECDEC</title><link>https://churchmice.github.io/p/secdec/</link><pubDate>Sun, 19 May 2024 16:12:10 +0800</pubDate><guid>https://churchmice.github.io/p/secdec/</guid><description>&lt;h1 id="介绍">介绍&lt;/h1>
-&lt;p>SECDED是single error correction, double bit detection的简称，也就是可以纠正1比特的错误，能够检测2比特的错误。&lt;/p>
-&lt;h1 id="hamming-code">Hamming Code&lt;/h1>
-&lt;p>原理是借助了hamming code,distance是3，也就是说任意两个codeword之间的差距起码是3，hamming distance的计算方法就是对比两个codeword不一样的地方，并进行累加&lt;/p>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Travel on Free at last</title><link>https://churchmice.github.io/tags/travel/</link><description>Recent content in Travel on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 19 May 2024 16:12:10 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/tags/travel/index.xml" rel="self" type="application/rss+xml"/><item><title>SECDEC</title><link>https://churchmice.github.io/p/secdec/</link><pubDate>Sun, 19 May 2024 16:12:10 +0800</pubDate><guid>https://churchmice.github.io/p/secdec/</guid><description>&lt;h1 id="介绍">介绍
+&lt;/h1>&lt;p>SECDED是single error correction, double bit detection的简称，也就是可以纠正1比特的错误，能够检测2比特的错误。&lt;/p>
+&lt;h1 id="hamming-code">Hamming Code
+&lt;/h1>&lt;p>原理是借助了hamming code,distance是3，也就是说任意两个codeword之间的差距起码是3，hamming distance的计算方法就是对比两个codeword不一样的地方，并进行累加&lt;/p>
 &lt;div class="highlight">&lt;div class="chroma">
 &lt;table class="lntable">&lt;tr>&lt;td class="lntd">
 &lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
@@ -45,8 +45,8 @@ hamming编码有一定的规则产生生成矩阵，示意图如下，其中Pn�
 &lt;/ul>
 &lt;p>parity bits (m)和 data bits (k)以及码长(m)的关系如下
 &lt;img src="Pasted%20image%2020240519165452.png" alt="" />&lt;/p>
-&lt;h1 id="secded">SECDED&lt;/h1>
-&lt;p>为了能够实现检测两比特错误的功能，可以通过额外添加一比特全局parity来实现。
+&lt;h1 id="secded">SECDED
+&lt;/h1>&lt;p>为了能够实现检测两比特错误的功能，可以通过额外添加一比特全局parity来实现。
 还是以前面的例子为例，p4 = ^ { p1,p2,p3,d1,d2,d3,d4}
 解码的时候计算p1,p2,p3,p4&lt;/p>
 &lt;ul>
@@ -54,16 +54,16 @@ hamming编码有一定的规则产生生成矩阵，示意图如下，其中Pn�
 &lt;li>^p4 == 0 : 并且p1,p2,p3也是0，这说明没有错误发生&lt;/li>
 &lt;li>^p4 == 1 : 这种时候说明发生了一比特的翻转,并且是可以纠回来的&lt;/li>
 &lt;/ul>
-&lt;h1 id="implementation">Implementation&lt;/h1>
-&lt;h2 id="sw">SW&lt;/h2>
-&lt;p>可以参见
+&lt;h1 id="implementation">Implementation
+&lt;/h1>&lt;h2 id="sw">SW
+&lt;/h2>&lt;p>可以参见
 &lt;a href="https://github.com/aa876433/SECDED_hamming_code" target="_blank">https://github.com/aa876433/SECDED_hamming_code&lt;/a>
 &lt;/p>
-&lt;h2 id="hw">HW&lt;/h2>
-&lt;p>可以参见
+&lt;h2 id="hw">HW
+&lt;/h2>&lt;p>可以参见
 &lt;a href="https://github.com/churchmice/secdec" target="_blank">https://github.com/churchmice/secdec&lt;/a>
-&lt;/p></description></item><item><title>Gamble</title><link>https://churchmice.github.io/p/gamble/</link><pubDate>Fri, 22 Mar 2024 09:45:55 +0800</pubDate><guid>https://churchmice.github.io/p/gamble/</guid><description>&lt;h1 id="一些原则">一些原则&lt;/h1>
-&lt;ul>
+&lt;/p></description></item><item><title>Gamble</title><link>https://churchmice.github.io/p/gamble/</link><pubDate>Fri, 22 Mar 2024 09:45:55 +0800</pubDate><guid>https://churchmice.github.io/p/gamble/</guid><description>&lt;h1 id="一些原则">一些原则
+&lt;/h1>&lt;ul>
 &lt;li>一般来说，如果一加公司的PE只有收益增长率的一半,那这只股票赚钱的可能性就相当大。如果PE是收益增长率的两倍，那这只股票亏钱的可能新就相当大。比如一只股票的PE为20，如果收益增长率有40%,那就可以梭哈。&lt;/li>
 &lt;li>美股一般10-12月会有大量的卖出&lt;/li>
 &lt;/ul></description></item></channel></rss>
