@@ -1,423 +1,423 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Life on Free at last</title><link>https://churchmice.github.io/categories/life/</link><description>Recent content in Life on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 19 May 2024 16:12:10 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/categories/life/index.xml" rel="self" type="application/rss+xml"/><item><title>SECDEC</title><link>https://churchmice.github.io/p/secdec/</link><pubDate>Sun, 19 May 2024 16:12:10 +0800</pubDate><guid>https://churchmice.github.io/p/secdec/</guid><description>&lt;h1 id="介绍">介绍
-&lt;/h1>&lt;p>SECDED是single error correction, double bit detection的简称，也就是可以纠正1比特的错误，能够检测2比特的错误。&lt;/p>
-&lt;h1 id="hamming-code">Hamming Code
-&lt;/h1>&lt;p>原理是借助了hamming code,distance是3，也就是说任意两个codeword之间的差距起码是3，hamming distance的计算方法就是对比两个codeword不一样的地方，并进行累加&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-c" data-lang="c">&lt;span class="line">&lt;span class="cl">&lt;span class="n">uint32&lt;/span> &lt;span class="nf">hamming_distance&lt;/span>&lt;span class="p">(&lt;/span> &lt;span class="n">unint32&lt;/span> &lt;span class="n">a&lt;/span>&lt;span class="p">,&lt;/span> &lt;span class="n">unit32&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">uint32&lt;/span> &lt;span class="n">num&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">0&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">uint32&lt;/span> &lt;span class="n">diff&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">diff&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">a&lt;/span> &lt;span class="o">^&lt;/span> &lt;span class="n">b&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">while&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">diff&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">num&lt;/span> &lt;span class="o">++&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">diff&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="n">diff&lt;/span> &lt;span class="o">&amp;amp;&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="n">diff&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="mi">1&lt;/span> &lt;span class="p">);&lt;/span> &lt;span class="c1">//remove the leading 1
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">&lt;/span> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">return&lt;/span> &lt;span class="n">num&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>一个典型的hamming(7,4)的意思是原始数据长度是4,parity长度是3,编码后的消息长度是7.
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Life on Free at last</title><link>https://churchmice.github.io/categories/life/</link><description>Recent content in Life on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 19 May 2024 16:12:10 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/categories/life/index.xml" rel="self" type="application/rss+xml"/><item><title>SECDEC</title><link>https://churchmice.github.io/p/secdec/</link><pubDate>Sun, 19 May 2024 16:12:10 +0800</pubDate><guid>https://churchmice.github.io/p/secdec/</guid><description>&lt;h1 id="介绍"&gt;介绍
+&lt;/h1&gt;&lt;p&gt;SECDED是single error correction, double bit detection的简称，也就是可以纠正1比特的错误，能够检测2比特的错误。&lt;/p&gt;
+&lt;h1 id="hamming-code"&gt;Hamming Code
+&lt;/h1&gt;&lt;p&gt;原理是借助了hamming code,distance是3，也就是说任意两个codeword之间的差距起码是3，hamming distance的计算方法就是对比两个codeword不一样的地方，并进行累加&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-c" data-lang="c"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;uint32&lt;/span&gt; &lt;span class="nf"&gt;hamming_distance&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="n"&gt;unint32&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;unit32&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;uint32&lt;/span&gt; &lt;span class="n"&gt;num&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;uint32&lt;/span&gt; &lt;span class="n"&gt;diff&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;^&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;while&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;diff&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;num&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;diff&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;diff&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;diff&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;//remove the leading 1
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;num&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;一个典型的hamming(7,4)的意思是原始数据长度是4,parity长度是3,编码后的消息长度是7.
 hamming编码有一定的规则产生生成矩阵，示意图如下，其中Pn代表parity, Dn代表的是数据
-&lt;img src="Pasted%20image%2020240519162034.png" alt="" />
-从这张图，我们不难发现如下规律&lt;/p>
-&lt;ul>
-&lt;li>Pn位于位置是2^i的地方，剩余的位置依次填充Dn&lt;/li>
-&lt;li>对于Pi行，如果index的i bit是1，则填充yes,否则填充No&lt;/li>
-&lt;li>从左到右, {p3,p2,p1}呈现从1到7依次递增的序列，这为后面的编码提供了基础&lt;/li>
-&lt;li>p1 = d1 ^ d2 ^ d4, p2 = d1 ^ d3 ^ d4, p3 = d2 ^ d3 ^ d4&lt;/li>
-&lt;li>解码的时候如果p1,p2,p3只有一个等式不成立，那出错的bit处于Pi上&lt;/li>
-&lt;li>解码的时候如果p1,p2,p3有超过一个等式不成立，那出错的bit处于Di上&lt;/li>
-&lt;li>如果 {p3,p2,p1} = x ( x != 0), 则依次很想查找{p3,p2,p1} =x的那一列，对应的列号就是出错的数据。例如，如果{p3,p2,p1}计算结果是6,那出错的数据就是d3,通过将d3进行flipping就可以把数据纠错回来。原因是p3=1,p2=1,所以出错的数据一定在同时可以被p2和p3 cover的行内，也就是d3和d4,如果是d4出错，那p1也会出错，所以只可能是d3.
+&lt;img src="Pasted%20image%2020240519162034.png" alt="" /&gt;
+从这张图，我们不难发现如下规律&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Pn位于位置是2^i的地方，剩余的位置依次填充Dn&lt;/li&gt;
+&lt;li&gt;对于Pi行，如果index的i bit是1，则填充yes,否则填充No&lt;/li&gt;
+&lt;li&gt;从左到右, {p3,p2,p1}呈现从1到7依次递增的序列，这为后面的编码提供了基础&lt;/li&gt;
+&lt;li&gt;p1 = d1 ^ d2 ^ d4, p2 = d1 ^ d3 ^ d4, p3 = d2 ^ d3 ^ d4&lt;/li&gt;
+&lt;li&gt;解码的时候如果p1,p2,p3只有一个等式不成立，那出错的bit处于Pi上&lt;/li&gt;
+&lt;li&gt;解码的时候如果p1,p2,p3有超过一个等式不成立，那出错的bit处于Di上&lt;/li&gt;
+&lt;li&gt;如果 {p3,p2,p1} = x ( x != 0), 则依次很想查找{p3,p2,p1} =x的那一列，对应的列号就是出错的数据。例如，如果{p3,p2,p1}计算结果是6,那出错的数据就是d3,通过将d3进行flipping就可以把数据纠错回来。原因是p3=1,p2=1,所以出错的数据一定在同时可以被p2和p3 cover的行内，也就是d3和d4,如果是d4出错，那p1也会出错，所以只可能是d3.
 对于hamming distance =3的纠错码，只能进行1bit的纠错，因为如果发生了2bit的错误，因为distance是3，有可能和另外一个码的distance是1从而导致误纠错。
-一般的，对于distance是d的纠错码，可纠错的bit数是(d-1)/2，可以检错的bit数是d-1&lt;/li>
-&lt;/ul>
-&lt;p>parity bits (m)和 data bits (k)以及码长(m)的关系如下
-&lt;img src="Pasted%20image%2020240519165452.png" alt="" />&lt;/p>
-&lt;h1 id="secded">SECDED
-&lt;/h1>&lt;p>为了能够实现检测两比特错误的功能，可以通过额外添加一比特全局parity来实现。
+一般的，对于distance是d的纠错码，可纠错的bit数是(d-1)/2，可以检错的bit数是d-1&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;parity bits (m)和 data bits (k)以及码长(m)的关系如下
+&lt;img src="Pasted%20image%2020240519165452.png" alt="" /&gt;&lt;/p&gt;
+&lt;h1 id="secded"&gt;SECDED
+&lt;/h1&gt;&lt;p&gt;为了能够实现检测两比特错误的功能，可以通过额外添加一比特全局parity来实现。
 还是以前面的例子为例，p4 = ^ { p1,p2,p3,d1,d2,d3,d4}
-解码的时候计算p1,p2,p3,p4&lt;/p>
-&lt;ul>
-&lt;li>^p4 == 0 : 但是p1,p2,p3有不为0的情况，这种时候就说明发生了两比特翻转的情况&lt;/li>
-&lt;li>^p4 == 0 : 并且p1,p2,p3也是0，这说明没有错误发生&lt;/li>
-&lt;li>^p4 == 1 : 这种时候说明发生了一比特的翻转,并且是可以纠回来的&lt;/li>
-&lt;/ul>
-&lt;h1 id="implementation">Implementation
-&lt;/h1>&lt;h2 id="sw">SW
-&lt;/h2>&lt;p>可以参见
-&lt;a href="https://github.com/aa876433/SECDED_hamming_code" target="_blank">https://github.com/aa876433/SECDED_hamming_code&lt;/a>
-&lt;/p>
-&lt;h2 id="hw">HW
-&lt;/h2>&lt;p>可以参见
-&lt;a href="https://github.com/churchmice/secdec" target="_blank">https://github.com/churchmice/secdec&lt;/a>
-&lt;/p></description></item><item><title>爱在记忆消逝之前(一)</title><link>https://churchmice.github.io/p/%E7%88%B1%E5%9C%A8%E8%AE%B0%E5%BF%86%E6%B6%88%E9%80%9D%E4%B9%8B%E5%89%8D%E4%B8%80/</link><pubDate>Sat, 13 Apr 2024 19:38:28 +0800</pubDate><guid>https://churchmice.github.io/p/%E7%88%B1%E5%9C%A8%E8%AE%B0%E5%BF%86%E6%B6%88%E9%80%9D%E4%B9%8B%E5%89%8D%E4%B8%80/</guid><description>&lt;p>要说我生命中的姑娘，最早我觉得可以追溯到我没上小学那会，我记得那是我还住在场口老家的时候，有次隔壁的邻居摆摊，我就过去一起凑热闹，摆摊的是个很好看的小姐姐。&lt;/p>
-&lt;p>上了小学之后，我对于姑娘的喜欢标准其实就一个，那就是学习成绩好，现在想想也真是无语。所以小学时候就对成绩好的欧姑娘特别有好感，当时全班也起哄，我记得我俩一起唱过歌，最后有一个互相献哈达的场景，算是我俩最亲密的接触了。后来慢慢对欧姑娘失去了兴趣，说出来原因似乎也是很搞笑的。那个时候夏天都会午睡，一般是一个孩子睡桌子，一个孩子睡凳子。在某次午睡的时候我睡在凳子上，撇到了同样睡在凳子上的欧姑娘的红色内裤，这让我幼小的心灵受到了强烈的冲击：这么漂亮的姑娘怎么可以穿这么恶俗的红内裤？自那之后对欧姑娘慢慢就没有了感觉，或许也跟欧姑娘后来成绩慢慢变差有关。因为前面说了，我喜欢成绩好的姑娘。&lt;/p>
-&lt;p>日子辗转到了小学四年级，隔壁村的孩子并到了我们班里面上学，里面就出现了我第二个喜欢的姑娘，就叫赵姑娘吧。
-赵姑娘的特点是比较黑，像个假小子一样，经常会追着男生到处乱窜，毫不意外，我肯定是这些乱窜的男生中的一个。对赵姑娘更多的是暗恋，在小学毕业的那天，我和赵姑娘还有其他人一起留下来打扫卫生，我去倒垃圾，在倒垃圾回来的途中，我突然想到要去表白一下赵姑娘，路上有一些列的心理活动，至于最后为啥没表白，我已经不记得了，也算是小学时期的遗憾吧。&lt;/p>
-&lt;p>我和赵姑娘上了同一个初中，但是赵姑娘和我不同班，我们都是各自班级的学习委员。那个时候和赵姑娘的交集是有时候年级会召集学习委员一起开会，所以还能见到赵姑娘。有一天晚自习的时候赵姑娘在下楼梯的时候突然摔倒了，但是傻逼一样的我居然呆呆的看着，也没有去扶一下，现在的我真想扇自己两巴掌。&lt;/p>
-&lt;p>那个时候我有个好朋友小王，小王在场口也有亲戚，有一次场口过节的时候小王就说我们各自把秘密写在纸条上面，然后塞在你家的墙缝里面。我记得那个时候我写的就是&amp;rsquo;我喜欢赵xx&amp;rsquo;。可惜，现在场口的老房子早就拆掉了，一切的一切已经不知道究竟是我自己的一场梦还是真的发生过。&lt;/p>
-&lt;p>我和赵姑娘再也没有关系更进一步，到了初二下半学期我就转学去了市里面，从此逐渐断了联系。在暑假的时候我也去赵家看过一些老朋友，但是心里还是希望可以偶遇赵姑娘，但是听到的却是赵姑娘如何坐在寝室的床上大谈她初恋的故事。那应该是我最后一次听到赵姑娘的消息，至此之后我和她再也没有了任何联系。&lt;/p>
-&lt;p>至于欧姑娘，在我上大学的时候偶有朋友提起欧姑娘在当地的超市里面当收银员，我也试图去寻找，但是始终没有找到。我和欧姑娘也算是从此天各一方，各自安好。&lt;/p>
-&lt;p>最后放一张小学同学的照片，小学现在已经彻底被夷为平地了，村子也从之前富阳垫底的贫困村包装成什么网红村，到处洋溢着各种商业气氛，然而我小时候的那些记忆全部都被掩埋了。&lt;/p>
-&lt;p>拍摄地点是在梅山下面，拍摄时间的话是一年级或者二年级，所以还是本村的学生，我大概还能认出七七八八。&lt;br>
-许东杰 王涛 许洁川 李超晨 许剑波 许晓杰 许凯飞 王超 李刚 张英 许玲 许安&lt;br>
-朱恩德 许遒 柴玲华(班主任) 许伟 方杰轩 王银飞&lt;br>
-王翔 倪小青 许婷兰 汪燕 朱杨荣 徐晓霓 许锋 许黄明 许杰 陈杰&lt;br>
-之后又从其他村里面转过来一批同学&lt;br>
-赵家村: 赵鸿 赵存铃 赵恩军 赵书波 赵玉琦 赵建锋&lt;br>
-欧家溪: 刘正逻 欧珍芳 汪剑&lt;br>
-还有一个一年级转走的插班生 胡勇亮 （永康市古丽镇干塘下村)&lt;/p>
-&lt;p>&lt;img src="Pasted%20image%2020240413200758.png" alt="" />&lt;/p></description></item><item><title>Gamble</title><link>https://churchmice.github.io/p/gamble/</link><pubDate>Fri, 22 Mar 2024 09:45:55 +0800</pubDate><guid>https://churchmice.github.io/p/gamble/</guid><description>&lt;h1 id="一些原则">一些原则
-&lt;/h1>&lt;ul>
-&lt;li>一般来说，如果一加公司的PE只有收益增长率的一半,那这只股票赚钱的可能性就相当大。如果PE是收益增长率的两倍，那这只股票亏钱的可能新就相当大。比如一只股票的PE为20，如果收益增长率有40%,那就可以梭哈。&lt;/li>
-&lt;li>美股一般10-12月会有大量的卖出&lt;/li>
-&lt;/ul></description></item><item><title>Go_stock</title><link>https://churchmice.github.io/p/go_stock/</link><pubDate>Thu, 21 Mar 2024 09:07:42 +0800</pubDate><guid>https://churchmice.github.io/p/go_stock/</guid><description>&lt;h1 id="银行卡">银行卡
-&lt;/h1>&lt;p>持有以下三行&lt;/p>
-&lt;h2 id="汇丰">汇丰
-&lt;/h2>&lt;p>推荐，一地卓越，全球卓越，同名账户不同地的账户互转没有手续费
-唯一的缺点是汇丰的&lt;strong>利率&lt;/strong>不太好，这也是被很多人诟病的,另外坊间流传国外账户动不动关户的情况。
-大陆可以用卓越员工计划先开大陆的卓越理财，主账户留在大陆，然后见证开户香港账户，最后是自助开户美国账户&lt;/p>
-&lt;h3 id="美国账户">美国账户
-&lt;/h3>&lt;p>分为checking account和saving accout, 每一个account包括9位数的ABA路由码（标识银行机构）和9位数的账号（标识银行中的不同用户）组成
+解码的时候计算p1,p2,p3,p4&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;^p4 == 0 : 但是p1,p2,p3有不为0的情况，这种时候就说明发生了两比特翻转的情况&lt;/li&gt;
+&lt;li&gt;^p4 == 0 : 并且p1,p2,p3也是0，这说明没有错误发生&lt;/li&gt;
+&lt;li&gt;^p4 == 1 : 这种时候说明发生了一比特的翻转,并且是可以纠回来的&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="implementation"&gt;Implementation
+&lt;/h1&gt;&lt;h2 id="sw"&gt;SW
+&lt;/h2&gt;&lt;p&gt;可以参见
+&lt;a href="https://github.com/aa876433/SECDED_hamming_code" target="_blank"&gt;https://github.com/aa876433/SECDED_hamming_code&lt;/a&gt;
+&lt;/p&gt;
+&lt;h2 id="hw"&gt;HW
+&lt;/h2&gt;&lt;p&gt;可以参见
+&lt;a href="https://github.com/churchmice/secdec" target="_blank"&gt;https://github.com/churchmice/secdec&lt;/a&gt;
+&lt;/p&gt;</description></item><item><title>爱在记忆消逝之前(一)</title><link>https://churchmice.github.io/p/%E7%88%B1%E5%9C%A8%E8%AE%B0%E5%BF%86%E6%B6%88%E9%80%9D%E4%B9%8B%E5%89%8D%E4%B8%80/</link><pubDate>Sat, 13 Apr 2024 19:38:28 +0800</pubDate><guid>https://churchmice.github.io/p/%E7%88%B1%E5%9C%A8%E8%AE%B0%E5%BF%86%E6%B6%88%E9%80%9D%E4%B9%8B%E5%89%8D%E4%B8%80/</guid><description>&lt;p&gt;要说我生命中的姑娘，最早我觉得可以追溯到我没上小学那会，我记得那是我还住在场口老家的时候，有次隔壁的邻居摆摊，我就过去一起凑热闹，摆摊的是个很好看的小姐姐。&lt;/p&gt;
+&lt;p&gt;上了小学之后，我对于姑娘的喜欢标准其实就一个，那就是学习成绩好，现在想想也真是无语。所以小学时候就对成绩好的欧姑娘特别有好感，当时全班也起哄，我记得我俩一起唱过歌，最后有一个互相献哈达的场景，算是我俩最亲密的接触了。后来慢慢对欧姑娘失去了兴趣，说出来原因似乎也是很搞笑的。那个时候夏天都会午睡，一般是一个孩子睡桌子，一个孩子睡凳子。在某次午睡的时候我睡在凳子上，撇到了同样睡在凳子上的欧姑娘的红色内裤，这让我幼小的心灵受到了强烈的冲击：这么漂亮的姑娘怎么可以穿这么恶俗的红内裤？自那之后对欧姑娘慢慢就没有了感觉，或许也跟欧姑娘后来成绩慢慢变差有关。因为前面说了，我喜欢成绩好的姑娘。&lt;/p&gt;
+&lt;p&gt;日子辗转到了小学四年级，隔壁村的孩子并到了我们班里面上学，里面就出现了我第二个喜欢的姑娘，就叫赵姑娘吧。
+赵姑娘的特点是比较黑，像个假小子一样，经常会追着男生到处乱窜，毫不意外，我肯定是这些乱窜的男生中的一个。对赵姑娘更多的是暗恋，在小学毕业的那天，我和赵姑娘还有其他人一起留下来打扫卫生，我去倒垃圾，在倒垃圾回来的途中，我突然想到要去表白一下赵姑娘，路上有一些列的心理活动，至于最后为啥没表白，我已经不记得了，也算是小学时期的遗憾吧。&lt;/p&gt;
+&lt;p&gt;我和赵姑娘上了同一个初中，但是赵姑娘和我不同班，我们都是各自班级的学习委员。那个时候和赵姑娘的交集是有时候年级会召集学习委员一起开会，所以还能见到赵姑娘。有一天晚自习的时候赵姑娘在下楼梯的时候突然摔倒了，但是傻逼一样的我居然呆呆的看着，也没有去扶一下，现在的我真想扇自己两巴掌。&lt;/p&gt;
+&lt;p&gt;那个时候我有个好朋友小王，小王在场口也有亲戚，有一次场口过节的时候小王就说我们各自把秘密写在纸条上面，然后塞在你家的墙缝里面。我记得那个时候我写的就是&amp;rsquo;我喜欢赵xx&amp;rsquo;。可惜，现在场口的老房子早就拆掉了，一切的一切已经不知道究竟是我自己的一场梦还是真的发生过。&lt;/p&gt;
+&lt;p&gt;我和赵姑娘再也没有关系更进一步，到了初二下半学期我就转学去了市里面，从此逐渐断了联系。在暑假的时候我也去赵家看过一些老朋友，但是心里还是希望可以偶遇赵姑娘，但是听到的却是赵姑娘如何坐在寝室的床上大谈她初恋的故事。那应该是我最后一次听到赵姑娘的消息，至此之后我和她再也没有了任何联系。&lt;/p&gt;
+&lt;p&gt;至于欧姑娘，在我上大学的时候偶有朋友提起欧姑娘在当地的超市里面当收银员，我也试图去寻找，但是始终没有找到。我和欧姑娘也算是从此天各一方，各自安好。&lt;/p&gt;
+&lt;p&gt;最后放一张小学同学的照片，小学现在已经彻底被夷为平地了，村子也从之前富阳垫底的贫困村包装成什么网红村，到处洋溢着各种商业气氛，然而我小时候的那些记忆全部都被掩埋了。&lt;/p&gt;
+&lt;p&gt;拍摄地点是在梅山下面，拍摄时间的话是一年级或者二年级，所以还是本村的学生，我大概还能认出七七八八。&lt;br&gt;
+许东杰 王涛 许洁川 李超晨 许剑波 许晓杰 许凯飞 王超 李刚 张英 许玲 许安&lt;br&gt;
+朱恩德 许遒 柴玲华(班主任) 许伟 方杰轩 王银飞&lt;br&gt;
+王翔 倪小青 许婷兰 汪燕 朱杨荣 徐晓霓 许锋 许黄明 许杰 陈杰&lt;br&gt;
+之后又从其他村里面转过来一批同学&lt;br&gt;
+赵家村: 赵鸿 赵存铃 赵恩军 赵书波 赵玉琦 赵建锋&lt;br&gt;
+欧家溪: 刘正逻 欧珍芳 汪剑&lt;br&gt;
+还有一个一年级转走的插班生 胡勇亮 （永康市古丽镇干塘下村)&lt;/p&gt;
+&lt;p&gt;&lt;img src="Pasted%20image%2020240413200758.png" alt="" /&gt;&lt;/p&gt;</description></item><item><title>Gamble</title><link>https://churchmice.github.io/p/gamble/</link><pubDate>Fri, 22 Mar 2024 09:45:55 +0800</pubDate><guid>https://churchmice.github.io/p/gamble/</guid><description>&lt;h1 id="一些原则"&gt;一些原则
+&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;一般来说，如果一加公司的PE只有收益增长率的一半,那这只股票赚钱的可能性就相当大。如果PE是收益增长率的两倍，那这只股票亏钱的可能新就相当大。比如一只股票的PE为20，如果收益增长率有40%,那就可以梭哈。&lt;/li&gt;
+&lt;li&gt;美股一般10-12月会有大量的卖出&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Go_stock</title><link>https://churchmice.github.io/p/go_stock/</link><pubDate>Thu, 21 Mar 2024 09:07:42 +0800</pubDate><guid>https://churchmice.github.io/p/go_stock/</guid><description>&lt;h1 id="银行卡"&gt;银行卡
+&lt;/h1&gt;&lt;p&gt;持有以下三行&lt;/p&gt;
+&lt;h2 id="汇丰"&gt;汇丰
+&lt;/h2&gt;&lt;p&gt;推荐，一地卓越，全球卓越，同名账户不同地的账户互转没有手续费
+唯一的缺点是汇丰的&lt;strong&gt;利率&lt;/strong&gt;不太好，这也是被很多人诟病的,另外坊间流传国外账户动不动关户的情况。
+大陆可以用卓越员工计划先开大陆的卓越理财，主账户留在大陆，然后见证开户香港账户，最后是自助开户美国账户&lt;/p&gt;
+&lt;h3 id="美国账户"&gt;美国账户
+&lt;/h3&gt;&lt;p&gt;分为checking account和saving accout, 每一个account包括9位数的ABA路由码（标识银行机构）和9位数的账号（标识银行中的不同用户）组成
 checking acccout可以理解为活期账户，可以消费转账，和debit card绑定
-saving accout可以理解为定期账户，只能和checking account之间进行资金的互转&lt;/p>
-&lt;h2 id="root的解决方法">Root的解决方法
-&lt;/h2>&lt;p>银行app会检测手机是否root,可以通过安装
-&lt;a href="https://github.com/HuskyDG/magisk-files/releases" target="_blank">magisk kitsune&lt;/a>
-来解决，需要注意的是magisk本身也需要隐藏，防止被app检测出来。&lt;/p>
-&lt;p>&lt;img src="image/Pasted%20image%2020240307075444.png" alt="" />&lt;/p>
-&lt;h2 id="n26wiseifast">N26/WISE/iFast
-&lt;/h2>&lt;p>具体参考
-&lt;a href="https://churchmice.github.io/p/virtual-card/" target="_blank">国外虚拟卡指南&lt;/a>
-&lt;/p>
-&lt;h2 id="招行香港">招行香港
-&lt;/h2>&lt;p>扔1w港币买恒生指数，就算这样每个月还是需要缴纳10港币的管理费&lt;/p>
-&lt;h3 id="root之后闪退">root之后闪退
-&lt;/h3>&lt;p>需要去magiskhide里面把对应的app点开，然后把所有的√都打上即可，如下所示
-&lt;img src="image/Pasted%20image%2020240307075530.png" alt="" />&lt;/p>
-&lt;h1 id="券商">券商
-&lt;/h1>&lt;h2 id="大陆">大陆
-&lt;/h2>&lt;p>东方赢家，好处是万一免五，也就是佣金是万分之一，免除最小五块交易费的要求。&lt;/p>
-&lt;h2 id="香港">香港
-&lt;/h2>&lt;p>不外乎是长桥，富途和老虎，这三个最为人所知，都开户撸了羊毛。
-长桥的好处是佣金偏移，里面买基金有一些管理费的让利，但是也越来越少了，比如0.6%的管理费，一开始我看到是可以让利0.45%个，但是最近打开也只让利了0.2%个，不免让人有种做大了要收割的想法。另外长桥的入金和出金也没有富途来的方便。如果长桥连这个管理费的优势都没有了的话就没有必要用了。&lt;/p>
-&lt;h3 id="入金">入金
-&lt;/h3>&lt;table>
-&lt;thead>
-&lt;tr>
-&lt;th>券商&lt;/th>
-&lt;th>币种&lt;/th>
-&lt;th>方式&lt;/th>
-&lt;th>时效&lt;/th>
-&lt;th>手续费&lt;/th>
-&lt;th>说明&lt;/th>
-&lt;/tr>
-&lt;/thead>
-&lt;tbody>
-&lt;tr>
-&lt;td>长桥&lt;/td>
-&lt;td>港币&lt;/td>
-&lt;td>eDDA&lt;/td>
-&lt;td>秒到&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>富途&lt;/td>
-&lt;td>港币&lt;/td>
-&lt;td>eDDA&lt;/td>
-&lt;td>秒到&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>长桥&lt;/td>
-&lt;td>美金&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D0&lt;/td>
-&lt;td>50HKD&lt;/td>
-&lt;td>汇到的是工银亚洲，民生银证转账5分钟&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>富途&lt;/td>
-&lt;td>美金&lt;/td>
-&lt;td>E-bankding&lt;/td>
-&lt;td>D0&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>直接汇到富途汇丰账号&lt;/td>
-&lt;/tr>
-&lt;/tbody>
-&lt;/table>
-&lt;h3 id="出金">出金
-&lt;/h3>&lt;table>
-&lt;thead>
-&lt;tr>
-&lt;th>券商&lt;/th>
-&lt;th>币种&lt;/th>
-&lt;th>方式&lt;/th>
-&lt;th>时效&lt;/th>
-&lt;th>手续费&lt;/th>
-&lt;th>说明&lt;/th>
-&lt;/tr>
-&lt;/thead>
-&lt;tbody>
-&lt;tr>
-&lt;td>长桥&lt;/td>
-&lt;td>港币&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D1&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>富途&lt;/td>
-&lt;td>港币&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D1&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>长桥&lt;/td>
-&lt;td>美金&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D1&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
-&lt;/tr>
-&lt;tr>
-&lt;td>富途&lt;/td>
-&lt;td>美金&lt;/td>
-&lt;td>E-banking&lt;/td>
-&lt;td>D1&lt;/td>
-&lt;td>0&lt;/td>
-&lt;td>&lt;/td>
-&lt;/tr>
-&lt;/tbody>
-&lt;/table>
-&lt;h2 id="美国">美国
-&lt;/h2>&lt;h3 id="入金-1">入金
-&lt;/h3>&lt;ul>
-&lt;li>汇丰环球转到HSBC US,然后用ACH入金&lt;/li>
-&lt;li>参考
-&lt;a href="https://www.flyert.com/forum.php?mod=viewthread&amp;amp;tid=4574717&amp;amp;extra=page%3D1&amp;amp;page=1" target="_blank">盈透入金&lt;/a>
-，香港汇丰转本地银行美元，不走电汇，走的是chats，不收费。&lt;/li>
-&lt;/ul>
-&lt;h3 id="出金-1">出金
-&lt;/h3>&lt;p>出金的话，每个月的第一笔免费，其余的需要支持25美金手续费&lt;/p>
-&lt;h1 id="资金出海">资金出海
-&lt;/h1>&lt;p>现在的方式是通过兴业银行购汇，其实汇率最优的是南洋商业银行，但是去办卡的时候说汇款境外要提供酒店机票等证明材料，听起来比较麻烦
-兴业银行海外汇款的一些注意事项&lt;/p>
-&lt;ul>
-&lt;li>第一次汇款选择用港币，上传港澳通信证，联系人的香港地址找个香港酒店就行，我直接写了汇丰想干的地址也过了&lt;/li>
-&lt;li>后续汇款可以直接汇美金出去，但是需要在早上9点前操作，这样才能在下午三点前完成审核并汇出，下午三点前走的中转行是香港汇丰，不会收取额外的手续费。如果是三点之后的话会走海外的花旗中转，有额外25美金的手续费。&lt;/li>
-&lt;li>汇款的时候备注填 &lt;strong>interbank by HSBCHKHH&lt;/strong> ,收款人开户银行账号或清算代码填 &lt;strong>HSBCHKHH&lt;/strong>, 收款行之代理行swift代码填 &lt;strong>HSBCHKHH&lt;/strong>。这个swift代码会被兴业补全成 &lt;strong>HSBCHKHHXXX&lt;/strong>.&lt;/li>
-&lt;li>汇款和非柜金额无关，我的账号非柜5w,但是我单笔1w美刀的汇款也成功了&lt;/li>
-&lt;/ul>
-&lt;p>以3/22为例，1w人民币为例，美元汇率7.20635,港币汇率0.921425,IBKR的港币汇率是7.82085
+saving accout可以理解为定期账户，只能和checking account之间进行资金的互转&lt;/p&gt;
+&lt;h2 id="root的解决方法"&gt;Root的解决方法
+&lt;/h2&gt;&lt;p&gt;银行app会检测手机是否root,可以通过安装
+&lt;a href="https://github.com/HuskyDG/magisk-files/releases" target="_blank"&gt;magisk kitsune&lt;/a&gt;
+来解决，需要注意的是magisk本身也需要隐藏，防止被app检测出来。&lt;/p&gt;
+&lt;p&gt;&lt;img src="image/Pasted%20image%2020240307075444.png" alt="" /&gt;&lt;/p&gt;
+&lt;h2 id="n26wiseifast"&gt;N26/WISE/iFast
+&lt;/h2&gt;&lt;p&gt;具体参考
+&lt;a href="https://churchmice.github.io/p/virtual-card/" target="_blank"&gt;国外虚拟卡指南&lt;/a&gt;
+&lt;/p&gt;
+&lt;h2 id="招行香港"&gt;招行香港
+&lt;/h2&gt;&lt;p&gt;扔1w港币买恒生指数，就算这样每个月还是需要缴纳10港币的管理费&lt;/p&gt;
+&lt;h3 id="root之后闪退"&gt;root之后闪退
+&lt;/h3&gt;&lt;p&gt;需要去magiskhide里面把对应的app点开，然后把所有的√都打上即可，如下所示
+&lt;img src="image/Pasted%20image%2020240307075530.png" alt="" /&gt;&lt;/p&gt;
+&lt;h1 id="券商"&gt;券商
+&lt;/h1&gt;&lt;h2 id="大陆"&gt;大陆
+&lt;/h2&gt;&lt;p&gt;东方赢家，好处是万一免五，也就是佣金是万分之一，免除最小五块交易费的要求。&lt;/p&gt;
+&lt;h2 id="香港"&gt;香港
+&lt;/h2&gt;&lt;p&gt;不外乎是长桥，富途和老虎，这三个最为人所知，都开户撸了羊毛。
+长桥的好处是佣金偏移，里面买基金有一些管理费的让利，但是也越来越少了，比如0.6%的管理费，一开始我看到是可以让利0.45%个，但是最近打开也只让利了0.2%个，不免让人有种做大了要收割的想法。另外长桥的入金和出金也没有富途来的方便。如果长桥连这个管理费的优势都没有了的话就没有必要用了。&lt;/p&gt;
+&lt;h3 id="入金"&gt;入金
+&lt;/h3&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;券商&lt;/th&gt;
+&lt;th&gt;币种&lt;/th&gt;
+&lt;th&gt;方式&lt;/th&gt;
+&lt;th&gt;时效&lt;/th&gt;
+&lt;th&gt;手续费&lt;/th&gt;
+&lt;th&gt;说明&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;长桥&lt;/td&gt;
+&lt;td&gt;港币&lt;/td&gt;
+&lt;td&gt;eDDA&lt;/td&gt;
+&lt;td&gt;秒到&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;富途&lt;/td&gt;
+&lt;td&gt;港币&lt;/td&gt;
+&lt;td&gt;eDDA&lt;/td&gt;
+&lt;td&gt;秒到&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;长桥&lt;/td&gt;
+&lt;td&gt;美金&lt;/td&gt;
+&lt;td&gt;E-banking&lt;/td&gt;
+&lt;td&gt;D0&lt;/td&gt;
+&lt;td&gt;50HKD&lt;/td&gt;
+&lt;td&gt;汇到的是工银亚洲，民生银证转账5分钟&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;富途&lt;/td&gt;
+&lt;td&gt;美金&lt;/td&gt;
+&lt;td&gt;E-bankding&lt;/td&gt;
+&lt;td&gt;D0&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;直接汇到富途汇丰账号&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id="出金"&gt;出金
+&lt;/h3&gt;&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;券商&lt;/th&gt;
+&lt;th&gt;币种&lt;/th&gt;
+&lt;th&gt;方式&lt;/th&gt;
+&lt;th&gt;时效&lt;/th&gt;
+&lt;th&gt;手续费&lt;/th&gt;
+&lt;th&gt;说明&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;长桥&lt;/td&gt;
+&lt;td&gt;港币&lt;/td&gt;
+&lt;td&gt;E-banking&lt;/td&gt;
+&lt;td&gt;D1&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;富途&lt;/td&gt;
+&lt;td&gt;港币&lt;/td&gt;
+&lt;td&gt;E-banking&lt;/td&gt;
+&lt;td&gt;D1&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;长桥&lt;/td&gt;
+&lt;td&gt;美金&lt;/td&gt;
+&lt;td&gt;E-banking&lt;/td&gt;
+&lt;td&gt;D1&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;富途&lt;/td&gt;
+&lt;td&gt;美金&lt;/td&gt;
+&lt;td&gt;E-banking&lt;/td&gt;
+&lt;td&gt;D1&lt;/td&gt;
+&lt;td&gt;0&lt;/td&gt;
+&lt;td&gt;&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h2 id="美国"&gt;美国
+&lt;/h2&gt;&lt;h3 id="入金-1"&gt;入金
+&lt;/h3&gt;&lt;ul&gt;
+&lt;li&gt;汇丰环球转到HSBC US,然后用ACH入金&lt;/li&gt;
+&lt;li&gt;参考
+&lt;a href="https://www.flyert.com/forum.php?mod=viewthread&amp;amp;tid=4574717&amp;amp;extra=page%3D1&amp;amp;page=1" target="_blank"&gt;盈透入金&lt;/a&gt;
+，香港汇丰转本地银行美元，不走电汇，走的是chats，不收费。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="出金-1"&gt;出金
+&lt;/h3&gt;&lt;p&gt;出金的话，每个月的第一笔免费，其余的需要支持25美金手续费&lt;/p&gt;
+&lt;h1 id="资金出海"&gt;资金出海
+&lt;/h1&gt;&lt;p&gt;现在的方式是通过兴业银行购汇，其实汇率最优的是南洋商业银行，但是去办卡的时候说汇款境外要提供酒店机票等证明材料，听起来比较麻烦
+兴业银行海外汇款的一些注意事项&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;第一次汇款选择用港币，上传港澳通信证，联系人的香港地址找个香港酒店就行，我直接写了汇丰想干的地址也过了&lt;/li&gt;
+&lt;li&gt;后续汇款可以直接汇美金出去，但是需要在早上9点前操作，这样才能在下午三点前完成审核并汇出，下午三点前走的中转行是香港汇丰，不会收取额外的手续费。如果是三点之后的话会走海外的花旗中转，有额外25美金的手续费。&lt;/li&gt;
+&lt;li&gt;汇款的时候备注填 &lt;strong&gt;interbank by HSBCHKHH&lt;/strong&gt; ,收款人开户银行账号或清算代码填 &lt;strong&gt;HSBCHKHH&lt;/strong&gt;, 收款行之代理行swift代码填 &lt;strong&gt;HSBCHKHH&lt;/strong&gt;。这个swift代码会被兴业补全成 &lt;strong&gt;HSBCHKHHXXX&lt;/strong&gt;.&lt;/li&gt;
+&lt;li&gt;汇款和非柜金额无关，我的账号非柜5w,但是我单笔1w美刀的汇款也成功了&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;以3/22为例，1w人民币为例，美元汇率7.20635,港币汇率0.921425,IBKR的港币汇率是7.82085
 如果直接换成美金出境，能换成1387.665美元
-如果换成港币出境，再在IBKR里面换成美金，能换成1387.670 -2 = 1385.670 美元&lt;/p></description></item><item><title>CS Wangdao</title><link>https://churchmice.github.io/p/cs-wangdao/</link><pubDate>Sun, 17 Mar 2024 22:04:36 +0800</pubDate><guid>https://churchmice.github.io/p/cs-wangdao/</guid><description>&lt;p>虽然我不是CS的，但是王道系列起源于88，也算有点渊源，贴在这里就当存档吧。&lt;/p>
-&lt;h1 id="考研回忆">考研回忆
-&lt;/h1>&lt;p>以前我天天都想自杀&lt;br>
-有一天我在天桥默默走著犹豫要不要直接跳下去的时候&lt;/p>
-&lt;p>突然眼前一个广告让我眼睛一亮&lt;br>
-进入浙大CS　您将拥有全世界&lt;/p>
-&lt;p>我想姑且试一试　百无赖聊活著不如找件事做&lt;br>
-于是我花了一年每天没天没日的念书&lt;br>
-直到考研那天　我才发现我袜子已经穿一年没换了&lt;br>
-全身都是霉味&lt;/p>
-&lt;p>终于如愿进入浙大CS&lt;br>
-考进之后　每天校门口都有一堆美女等著我&lt;br>
-说要找我出去玩　我说我要去教九自修&lt;/p>
-&lt;p>结果美女门就带在教室陪我　我只有中间休息的时间才抱抱她们亲亲她们&lt;br>
-现在我人生充满希望　老师跟我说　我在cell nature SCI的期刊得到全世界的赞赏&lt;br>
-已经被提名诺贝尔奖&lt;/p>
-&lt;p>如今　我常常回去走那个天桥　那个在我人生最低潮时看见的广告&lt;br>
-我把他买下来了　放著另外的标题&lt;br>
-荣耀　尊绝　不凡　浙大 CS&lt;/p>
-&lt;p>很多乞丐原本想要在天桥上乞讨的现在也纷纷狂肯大学联考&lt;br>
-他们的眼神全都变了&lt;br>
-每个都是那么锐利　全身充满冲劲&lt;br>
-她们现在每天早上六点聚在天桥前　“CS才是王道！！！”&lt;br>
-声音那么的宏亮　阳光洒下来　一切的绝望终将过去&lt;/p>
-&lt;h1 id="面店老板">面店老板
-&lt;/h1>&lt;p>记的六年前  我还在念研究生的时候&lt;br>
-有一次出门忘记带皮包~&amp;quot;~&lt;/p>
-&lt;p>我就跟老板说  老板! 打个商量好不好  我真的是忘了带皮包出来&lt;br>
-不是故意不付帐的@@&amp;quot;&lt;/p>
-&lt;p>老板说  操  你想吃霸王餐吗?&lt;/p>
-&lt;p>&lt;del>&amp;quot;&lt;/del>  我说不是这样子的  我真的是一时忘记带出来..&lt;/p>
-&lt;p>就这样跟老板僵持很久&amp;hellip;&lt;br>
-眼看老板就要发火揍我了&lt;br>
-我刚好摸到口袋里有带学生证出来&lt;/p>
-&lt;p>不然这样子好吗?&lt;br>
-老板  我压我的学生证 在这边  我回去拿钱回来付? 可以吗?&lt;br>
-老板抢过我的学生证  说  好! 就信你一次&lt;/p>
-&lt;p>我就匆匆忙忙跨上我的老坦克直奔31舍&lt;br>
-等我拿了钱回到店门口&lt;br>
-老板 变了一个人似的  微笑热情的跟我打招呼&lt;/p>
-&lt;p>我怀疑其中有诈  二话不说  把钱赶快想拿给他&lt;br>
-顺便拿我的学生证&lt;br>
-谁知  老板  的手臂很有力  不管我愿不愿意  硬拉著我到店里?&lt;/p>
-&lt;p>这时候  店里已经没有客人了  我正感到奇怪&lt;/p>
-&lt;p>老板往后面喊   小如 小如  你出来&lt;br>
-这时候  老板的女儿  正点到爆炸  唇红齿白 又穿低胸装&lt;br>
-只穿条牛仔短裤就跑出来了&lt;/p>
-&lt;p>老板  哈哈一笑对我说&lt;br>
-同学请见谅阿  我不知道您是浙大CS的&lt;br>
-来来来   这是我的女儿小如  不知道你喜不喜欢?&lt;br>
-没关系啦  如果你觉得太快的话  你们可以  从朋友先当起&lt;br>
-只看到美女小如  害羞的低头在一旁腆腆的笑著&lt;/p>
-&lt;h1 id="英雄救美">英雄救美
-&lt;/h1>&lt;p>有一次我有事情要去延安路办点事&lt;br>
-想说很久没送女友礼物了就跑到银泰一楼的饰品专柜&lt;/p>
-&lt;p>这时候门口  驻足很多人&lt;br>
-我好奇心驱使下  我也跑过去凑热闹&lt;br>
-有一个彪形大汉  正在调戏一个美女店员&lt;/p>
-&lt;p>操你妈的!  我生平最恨这种好色之徒&lt;/p>
-&lt;p>我脱口而出   操！  放开那个女孩&lt;br>
-这时候惨了  那个大汉  跟他的小弟大概7.8人恶狠狠&lt;br>
-得朝我看过来..&lt;/p>
-&lt;p>他骂到  卖比儿子  你要作啥西？&lt;/p>
-&lt;p>我再说一次  放开那个女孩!&lt;/p>
-&lt;p>这时候我才发现  我旁边一堆  外校的学生离我远远的&lt;br>
-躲在一旁窃笑  等著看我挨凑的好戏上演&lt;br>
-这时候  他的小弟  就要冲动的冲过来教训我了&lt;/p>
-&lt;p>这时候调戏的大汉  怪叫一声&lt;/p>
-&lt;p>操！   等一下 大家别冲动&lt;/p>
-&lt;p>果然不愧是  流氓的头头&lt;br>
-毕竟  看过的大风大浪比较多&lt;br>
-这时候  他缓缓的朝我走过来&lt;/p>
-&lt;p>你!  到底啥地方的?&lt;/p>
-&lt;p>我把嘴巴里的口香糖  吐掉   二话不说  朝他肚子狠踹一脚&lt;/p>
-&lt;p>操  好痛&lt;br>
-他跌坐在  他小弟身上&lt;br>
-卖比儿子   寻死阿！&lt;/p>
-&lt;p>眼看我就要死在  乱棒之下&lt;/p>
-&lt;p>等!    谁要赶冲过去  我就要谁死!&lt;/p>
-&lt;p>大汉  收起痛苦的脸&lt;br>
-又问了我一句&lt;br>
-力!  什么来路？&lt;/p>
-&lt;p>这时候  我用力撕开我的衣服  露出我的白色卫生衣&lt;br>
-面对他们转过来  卫生衣写著  七个英文字母&lt;br>
-ZJUCSER&lt;/p>
-&lt;p>妈的&lt;br>
-快闪阿&lt;br>
-那堆小弟  搀扶他们大哥  落荒而逃&lt;br>
-这时候那个美女跑过来想跟我道谢&lt;/p>
-&lt;p>我呼了她一巴掌   骂道&lt;br>
-以后自己要小心一点!&lt;/p>
-&lt;p>旁边观看的美女们  直喊  好MEN!&lt;/p>
-&lt;p>我就走了&lt;br>
-旁边的外校学生   尿流了一地&amp;hellip;.&lt;/p>
-&lt;h1 id="埃及旅行">埃及旅行
-&lt;/h1>&lt;p>不然遇到不同文化是很容易闹出笑话!&lt;br>
-前几年我去埃及自助旅行时&lt;br>
-跟金字塔附近的摊贩买个小纪念品&lt;br>
-但是埃及毕竟不是英语母语国家,而我的憋脚英文就派不上用场了.&lt;/p>
-&lt;p>我跟他要买一个小法老王钥匙圈,付钱的时候这位埃及人先生却一直叽哩瓜啦不收钱.&lt;br>
-他说的听起来像是&amp;quot;ten dollars&amp;quot;&lt;br>
-我也跟他复颂&amp;quot;ten dollars??&amp;quot;&lt;br>
-他又说&amp;quot;deal doll&amp;quot;&lt;br>
-我说&amp;quot;deal?doll?&amp;quot;(十元成交吗doll是指这个钥匙圈吗?)&lt;br>
-我拿出钱他却一直摇手推来推去的把钥匙圈拿给我说&amp;quot;thi&amp;rsquo;s i&amp;rsquo;s one doll&amp;quot;&lt;/p>
-&lt;p>我一头雾水,不是说十元吗?怎么又说是一美圆了?&lt;br>
-我怕发生误会然也不敢拿!&lt;br>
-两个人就在那里僵持,那个埃及人就一直不断在那里&lt;br>
-&amp;ldquo;ten dollar, deal doll,thi&amp;rsquo;s  i&amp;rsquo;s one doll!&amp;rdquo;&lt;br>
-后来还好有一为当地的华裔阿伯解围,真是出外靠朋友啊!&lt;br>
-阿伯说&amp;quot;哈哈,年轻人,拿去吧!埃及人送你的!&amp;quot;&lt;br>
-我说&amp;quot;怎么可以!真的吗!这样没问题吗?!!&amp;quot;&lt;/p>
-&lt;p>阿伯指著我的T恤说&amp;quot;埃及人说的是天道 地道 浙大CS才是王道!你放心收下吧!&amp;quot;&lt;br>
-我终于了解了!原来他想说中文,我却跟他鸡同鸭讲!这趟埃及之旅收获很大!&lt;br>
-后来总理还有请我到官邸作客!真是太难忘了!&lt;/p>
-&lt;h1 id="我去我岳父家经历">我去我岳父家经历
-&lt;/h1>&lt;p>我一直深爱著一个女孩&lt;br>
-虽然女孩也深爱著我&lt;br>
-不过由于他老爸  对于我个人有点意见&lt;br>
-一直帮他安排对象&lt;br>
-这点让我非常困扰&lt;br>
-有天  他爸在他家设下晚宴托我女友跟我说今天务必赏光&lt;/p>
-&lt;p>我心理知道  其中必定有诈&lt;br>
-甚至招来难堪羞辱..&lt;br>
-但是为了深爱的女友  我义无反顾的去了&lt;/p>
-&lt;p>到了他家&lt;br>
-开们的是一个高高壮壮的帅哥&lt;br>
-说他帅真的一点都不夸张&lt;br>
-他只穿一件黑色背心  露出扎实的肌肉&lt;br>
-干  还我微笑的时候故意抖动了两下奶子&lt;/p>
-&lt;p>我入座后  未来的岳父  跟我介绍那个男的&lt;br>
-他跟我说  呵呵  人家他是小敏的青梅竹马&lt;br>
-刚从美国加州柏克力分校拿到硕士学位回国&lt;br>
-可说是  青年才俊阿&lt;/p>
-&lt;p>我一脸沉默   他老爸得理不饶人开头就劈问我&lt;br>
-小子  你多高?&lt;br>
-我:  我只有170&amp;hellip;&lt;br>
-哈哈  靠  我看你是少了号称两个字吧&lt;br>
-人家mike  身高一米九  体格又棒&lt;br>
-我女儿若嫁给他不知道有多么幸福喔&lt;/p>
-&lt;p>这时候我看了看小敏的眼神&lt;br>
-他眼神中似乎替我们的未来感到忧心&lt;br>
-我知到岳父是故意找我来给我难堪的&amp;hellip;&lt;/p>
-&lt;p>我越发沉默&lt;/p>
-&lt;p>你动产不动产加起来多多少?&lt;br>
-我: 我有一间两楼的平房  存款两万多吧&lt;br>
-哈哈   一间破房子 一点点钞票&lt;br>
-人家mike在欧洲有一座自己的城堡  你这个穷小子&lt;/p>
-&lt;p>可悲..&lt;/p>
-&lt;p>妈的  我再也受不了这种羞辱正想站起来起身离开&lt;br>
-小敏拉了拉我的衣角  ..  眼中含泪求我不要走&lt;br>
-不要轻易放弃他..&lt;/p>
-&lt;p>这时候  岳父问了最后一个问题就要赶我走了的时候&lt;/p>
-&lt;p>你念哪里毕业的?&lt;br>
-我万念俱灰  人家是加州柏克力  我是zju小bb  罢了罢了&amp;hellip;&lt;br>
-随便回了一句   我浙大CS本科毕业的&amp;hellip;&lt;br>
-操!  突然还很大一声脏话&lt;/p>
-&lt;p>岳父把桌子掀掉  冲过起来拥抱住我&lt;br>
-还叫岳母赶快去买结婚证书让我签&lt;br>
-嘴巴直说  我的好学弟阿好学弟&lt;br>
-我推开  岳父   说了一句&lt;/p>
-&lt;p>“CS才是王道！！！！！！！”&lt;/p>
-&lt;p>岳父感动到哭了&lt;/p>
-&lt;p>我跟小敏现在过的很幸福  三个小孩也很可爱  ^__^&lt;/p></description></item><item><title>Life Goal</title><link>https://churchmice.github.io/p/life-goal/</link><pubDate>Sun, 17 Mar 2024 20:14:21 +0800</pubDate><guid>https://churchmice.github.io/p/life-goal/</guid><description>&lt;h1 id="wish-list">wish list
-&lt;/h1>&lt;ul>
-&lt;li>&lt;input disabled="" type="checkbox"> 美国自驾游，从西海岸&lt;strong>一路高清无码裸奔&lt;/strong>到东海岸&lt;/li>
-&lt;li>&lt;input disabled="" type="checkbox"> 西北自驾游，把各种线都走一遍&lt;/li>
-&lt;li>&lt;input disabled="" type="checkbox"> 定居旧金山&lt;/li>
-&lt;li>&lt;input disabled="" type="checkbox"> 有一个可爱的女儿&lt;/li>
-&lt;li>&lt;input disabled="" type="checkbox"> 50岁的时候可以实现&lt;strong>自由&lt;/strong>，不一定要很多钱，但是可以活的更加随性一些&lt;/li>
-&lt;li>&lt;input disabled="" type="checkbox"> 未完待续&lt;/li>
-&lt;/ul>
-&lt;p>&lt;img src="image/Pasted%20image%2020240317214846.png" alt="" />&lt;/p>
-&lt;p>&lt;img src="Pasted%20image%2020240317215256.png" alt="" />&lt;/p></description></item><item><title>Virtual Card</title><link>https://churchmice.github.io/p/virtual-card/</link><pubDate>Sun, 17 Mar 2024 19:47:06 +0800</pubDate><guid>https://churchmice.github.io/p/virtual-card/</guid><description>&lt;p>这几天把N26/wise/ifast都开户了，也都激活了，不免有点空虚，闲下来了把整个开户过程记录下吧。这三个都是虚拟账户，都有IBAN( International Bank Account Number),直接填写IBAN就可以转账了。&lt;/p>
-&lt;h1 id="n26">N26
-&lt;/h1>&lt;p>N26是德国的银行，可以在线开户，下载app之后地址选择德国即可。之后要进行一个视频面试，需要有一点点英文的基础，基本问题如下&lt;/p>
-&lt;ul>
-&lt;li>是否本人开户&lt;/li>
-&lt;li>是否有人强迫你开户
+如果换成港币出境，再在IBKR里面换成美金，能换成1387.670 -2 = 1385.670 美元&lt;/p&gt;</description></item><item><title>CS Wangdao</title><link>https://churchmice.github.io/p/cs-wangdao/</link><pubDate>Sun, 17 Mar 2024 22:04:36 +0800</pubDate><guid>https://churchmice.github.io/p/cs-wangdao/</guid><description>&lt;p&gt;虽然我不是CS的，但是王道系列起源于88，也算有点渊源，贴在这里就当存档吧。&lt;/p&gt;
+&lt;h1 id="考研回忆"&gt;考研回忆
+&lt;/h1&gt;&lt;p&gt;以前我天天都想自杀&lt;br&gt;
+有一天我在天桥默默走著犹豫要不要直接跳下去的时候&lt;/p&gt;
+&lt;p&gt;突然眼前一个广告让我眼睛一亮&lt;br&gt;
+进入浙大CS　您将拥有全世界&lt;/p&gt;
+&lt;p&gt;我想姑且试一试　百无赖聊活著不如找件事做&lt;br&gt;
+于是我花了一年每天没天没日的念书&lt;br&gt;
+直到考研那天　我才发现我袜子已经穿一年没换了&lt;br&gt;
+全身都是霉味&lt;/p&gt;
+&lt;p&gt;终于如愿进入浙大CS&lt;br&gt;
+考进之后　每天校门口都有一堆美女等著我&lt;br&gt;
+说要找我出去玩　我说我要去教九自修&lt;/p&gt;
+&lt;p&gt;结果美女门就带在教室陪我　我只有中间休息的时间才抱抱她们亲亲她们&lt;br&gt;
+现在我人生充满希望　老师跟我说　我在cell nature SCI的期刊得到全世界的赞赏&lt;br&gt;
+已经被提名诺贝尔奖&lt;/p&gt;
+&lt;p&gt;如今　我常常回去走那个天桥　那个在我人生最低潮时看见的广告&lt;br&gt;
+我把他买下来了　放著另外的标题&lt;br&gt;
+荣耀　尊绝　不凡　浙大 CS&lt;/p&gt;
+&lt;p&gt;很多乞丐原本想要在天桥上乞讨的现在也纷纷狂肯大学联考&lt;br&gt;
+他们的眼神全都变了&lt;br&gt;
+每个都是那么锐利　全身充满冲劲&lt;br&gt;
+她们现在每天早上六点聚在天桥前　“CS才是王道！！！”&lt;br&gt;
+声音那么的宏亮　阳光洒下来　一切的绝望终将过去&lt;/p&gt;
+&lt;h1 id="面店老板"&gt;面店老板
+&lt;/h1&gt;&lt;p&gt;记的六年前  我还在念研究生的时候&lt;br&gt;
+有一次出门忘记带皮包~&amp;quot;~&lt;/p&gt;
+&lt;p&gt;我就跟老板说  老板! 打个商量好不好  我真的是忘了带皮包出来&lt;br&gt;
+不是故意不付帐的@@&amp;quot;&lt;/p&gt;
+&lt;p&gt;老板说  操  你想吃霸王餐吗?&lt;/p&gt;
+&lt;p&gt;&lt;del&gt;&amp;quot;&lt;/del&gt;  我说不是这样子的  我真的是一时忘记带出来..&lt;/p&gt;
+&lt;p&gt;就这样跟老板僵持很久&amp;hellip;&lt;br&gt;
+眼看老板就要发火揍我了&lt;br&gt;
+我刚好摸到口袋里有带学生证出来&lt;/p&gt;
+&lt;p&gt;不然这样子好吗?&lt;br&gt;
+老板  我压我的学生证 在这边  我回去拿钱回来付? 可以吗?&lt;br&gt;
+老板抢过我的学生证  说  好! 就信你一次&lt;/p&gt;
+&lt;p&gt;我就匆匆忙忙跨上我的老坦克直奔31舍&lt;br&gt;
+等我拿了钱回到店门口&lt;br&gt;
+老板 变了一个人似的  微笑热情的跟我打招呼&lt;/p&gt;
+&lt;p&gt;我怀疑其中有诈  二话不说  把钱赶快想拿给他&lt;br&gt;
+顺便拿我的学生证&lt;br&gt;
+谁知  老板  的手臂很有力  不管我愿不愿意  硬拉著我到店里?&lt;/p&gt;
+&lt;p&gt;这时候  店里已经没有客人了  我正感到奇怪&lt;/p&gt;
+&lt;p&gt;老板往后面喊   小如 小如  你出来&lt;br&gt;
+这时候  老板的女儿  正点到爆炸  唇红齿白 又穿低胸装&lt;br&gt;
+只穿条牛仔短裤就跑出来了&lt;/p&gt;
+&lt;p&gt;老板  哈哈一笑对我说&lt;br&gt;
+同学请见谅阿  我不知道您是浙大CS的&lt;br&gt;
+来来来   这是我的女儿小如  不知道你喜不喜欢?&lt;br&gt;
+没关系啦  如果你觉得太快的话  你们可以  从朋友先当起&lt;br&gt;
+只看到美女小如  害羞的低头在一旁腆腆的笑著&lt;/p&gt;
+&lt;h1 id="英雄救美"&gt;英雄救美
+&lt;/h1&gt;&lt;p&gt;有一次我有事情要去延安路办点事&lt;br&gt;
+想说很久没送女友礼物了就跑到银泰一楼的饰品专柜&lt;/p&gt;
+&lt;p&gt;这时候门口  驻足很多人&lt;br&gt;
+我好奇心驱使下  我也跑过去凑热闹&lt;br&gt;
+有一个彪形大汉  正在调戏一个美女店员&lt;/p&gt;
+&lt;p&gt;操你妈的!  我生平最恨这种好色之徒&lt;/p&gt;
+&lt;p&gt;我脱口而出   操！  放开那个女孩&lt;br&gt;
+这时候惨了  那个大汉  跟他的小弟大概7.8人恶狠狠&lt;br&gt;
+得朝我看过来..&lt;/p&gt;
+&lt;p&gt;他骂到  卖比儿子  你要作啥西？&lt;/p&gt;
+&lt;p&gt;我再说一次  放开那个女孩!&lt;/p&gt;
+&lt;p&gt;这时候我才发现  我旁边一堆  外校的学生离我远远的&lt;br&gt;
+躲在一旁窃笑  等著看我挨凑的好戏上演&lt;br&gt;
+这时候  他的小弟  就要冲动的冲过来教训我了&lt;/p&gt;
+&lt;p&gt;这时候调戏的大汉  怪叫一声&lt;/p&gt;
+&lt;p&gt;操！   等一下 大家别冲动&lt;/p&gt;
+&lt;p&gt;果然不愧是  流氓的头头&lt;br&gt;
+毕竟  看过的大风大浪比较多&lt;br&gt;
+这时候  他缓缓的朝我走过来&lt;/p&gt;
+&lt;p&gt;你!  到底啥地方的?&lt;/p&gt;
+&lt;p&gt;我把嘴巴里的口香糖  吐掉   二话不说  朝他肚子狠踹一脚&lt;/p&gt;
+&lt;p&gt;操  好痛&lt;br&gt;
+他跌坐在  他小弟身上&lt;br&gt;
+卖比儿子   寻死阿！&lt;/p&gt;
+&lt;p&gt;眼看我就要死在  乱棒之下&lt;/p&gt;
+&lt;p&gt;等!    谁要赶冲过去  我就要谁死!&lt;/p&gt;
+&lt;p&gt;大汉  收起痛苦的脸&lt;br&gt;
+又问了我一句&lt;br&gt;
+力!  什么来路？&lt;/p&gt;
+&lt;p&gt;这时候  我用力撕开我的衣服  露出我的白色卫生衣&lt;br&gt;
+面对他们转过来  卫生衣写著  七个英文字母&lt;br&gt;
+ZJUCSER&lt;/p&gt;
+&lt;p&gt;妈的&lt;br&gt;
+快闪阿&lt;br&gt;
+那堆小弟  搀扶他们大哥  落荒而逃&lt;br&gt;
+这时候那个美女跑过来想跟我道谢&lt;/p&gt;
+&lt;p&gt;我呼了她一巴掌   骂道&lt;br&gt;
+以后自己要小心一点!&lt;/p&gt;
+&lt;p&gt;旁边观看的美女们  直喊  好MEN!&lt;/p&gt;
+&lt;p&gt;我就走了&lt;br&gt;
+旁边的外校学生   尿流了一地&amp;hellip;.&lt;/p&gt;
+&lt;h1 id="埃及旅行"&gt;埃及旅行
+&lt;/h1&gt;&lt;p&gt;不然遇到不同文化是很容易闹出笑话!&lt;br&gt;
+前几年我去埃及自助旅行时&lt;br&gt;
+跟金字塔附近的摊贩买个小纪念品&lt;br&gt;
+但是埃及毕竟不是英语母语国家,而我的憋脚英文就派不上用场了.&lt;/p&gt;
+&lt;p&gt;我跟他要买一个小法老王钥匙圈,付钱的时候这位埃及人先生却一直叽哩瓜啦不收钱.&lt;br&gt;
+他说的听起来像是&amp;quot;ten dollars&amp;quot;&lt;br&gt;
+我也跟他复颂&amp;quot;ten dollars??&amp;quot;&lt;br&gt;
+他又说&amp;quot;deal doll&amp;quot;&lt;br&gt;
+我说&amp;quot;deal?doll?&amp;quot;(十元成交吗doll是指这个钥匙圈吗?)&lt;br&gt;
+我拿出钱他却一直摇手推来推去的把钥匙圈拿给我说&amp;quot;thi&amp;rsquo;s i&amp;rsquo;s one doll&amp;quot;&lt;/p&gt;
+&lt;p&gt;我一头雾水,不是说十元吗?怎么又说是一美圆了?&lt;br&gt;
+我怕发生误会然也不敢拿!&lt;br&gt;
+两个人就在那里僵持,那个埃及人就一直不断在那里&lt;br&gt;
+&amp;ldquo;ten dollar, deal doll,thi&amp;rsquo;s  i&amp;rsquo;s one doll!&amp;rdquo;&lt;br&gt;
+后来还好有一为当地的华裔阿伯解围,真是出外靠朋友啊!&lt;br&gt;
+阿伯说&amp;quot;哈哈,年轻人,拿去吧!埃及人送你的!&amp;quot;&lt;br&gt;
+我说&amp;quot;怎么可以!真的吗!这样没问题吗?!!&amp;quot;&lt;/p&gt;
+&lt;p&gt;阿伯指著我的T恤说&amp;quot;埃及人说的是天道 地道 浙大CS才是王道!你放心收下吧!&amp;quot;&lt;br&gt;
+我终于了解了!原来他想说中文,我却跟他鸡同鸭讲!这趟埃及之旅收获很大!&lt;br&gt;
+后来总理还有请我到官邸作客!真是太难忘了!&lt;/p&gt;
+&lt;h1 id="我去我岳父家经历"&gt;我去我岳父家经历
+&lt;/h1&gt;&lt;p&gt;我一直深爱著一个女孩&lt;br&gt;
+虽然女孩也深爱著我&lt;br&gt;
+不过由于他老爸  对于我个人有点意见&lt;br&gt;
+一直帮他安排对象&lt;br&gt;
+这点让我非常困扰&lt;br&gt;
+有天  他爸在他家设下晚宴托我女友跟我说今天务必赏光&lt;/p&gt;
+&lt;p&gt;我心理知道  其中必定有诈&lt;br&gt;
+甚至招来难堪羞辱..&lt;br&gt;
+但是为了深爱的女友  我义无反顾的去了&lt;/p&gt;
+&lt;p&gt;到了他家&lt;br&gt;
+开们的是一个高高壮壮的帅哥&lt;br&gt;
+说他帅真的一点都不夸张&lt;br&gt;
+他只穿一件黑色背心  露出扎实的肌肉&lt;br&gt;
+干  还我微笑的时候故意抖动了两下奶子&lt;/p&gt;
+&lt;p&gt;我入座后  未来的岳父  跟我介绍那个男的&lt;br&gt;
+他跟我说  呵呵  人家他是小敏的青梅竹马&lt;br&gt;
+刚从美国加州柏克力分校拿到硕士学位回国&lt;br&gt;
+可说是  青年才俊阿&lt;/p&gt;
+&lt;p&gt;我一脸沉默   他老爸得理不饶人开头就劈问我&lt;br&gt;
+小子  你多高?&lt;br&gt;
+我:  我只有170&amp;hellip;&lt;br&gt;
+哈哈  靠  我看你是少了号称两个字吧&lt;br&gt;
+人家mike  身高一米九  体格又棒&lt;br&gt;
+我女儿若嫁给他不知道有多么幸福喔&lt;/p&gt;
+&lt;p&gt;这时候我看了看小敏的眼神&lt;br&gt;
+他眼神中似乎替我们的未来感到忧心&lt;br&gt;
+我知到岳父是故意找我来给我难堪的&amp;hellip;&lt;/p&gt;
+&lt;p&gt;我越发沉默&lt;/p&gt;
+&lt;p&gt;你动产不动产加起来多多少?&lt;br&gt;
+我: 我有一间两楼的平房  存款两万多吧&lt;br&gt;
+哈哈   一间破房子 一点点钞票&lt;br&gt;
+人家mike在欧洲有一座自己的城堡  你这个穷小子&lt;/p&gt;
+&lt;p&gt;可悲..&lt;/p&gt;
+&lt;p&gt;妈的  我再也受不了这种羞辱正想站起来起身离开&lt;br&gt;
+小敏拉了拉我的衣角  ..  眼中含泪求我不要走&lt;br&gt;
+不要轻易放弃他..&lt;/p&gt;
+&lt;p&gt;这时候  岳父问了最后一个问题就要赶我走了的时候&lt;/p&gt;
+&lt;p&gt;你念哪里毕业的?&lt;br&gt;
+我万念俱灰  人家是加州柏克力  我是zju小bb  罢了罢了&amp;hellip;&lt;br&gt;
+随便回了一句   我浙大CS本科毕业的&amp;hellip;&lt;br&gt;
+操!  突然还很大一声脏话&lt;/p&gt;
+&lt;p&gt;岳父把桌子掀掉  冲过起来拥抱住我&lt;br&gt;
+还叫岳母赶快去买结婚证书让我签&lt;br&gt;
+嘴巴直说  我的好学弟阿好学弟&lt;br&gt;
+我推开  岳父   说了一句&lt;/p&gt;
+&lt;p&gt;“CS才是王道！！！！！！！”&lt;/p&gt;
+&lt;p&gt;岳父感动到哭了&lt;/p&gt;
+&lt;p&gt;我跟小敏现在过的很幸福  三个小孩也很可爱  ^__^&lt;/p&gt;</description></item><item><title>Life Goal</title><link>https://churchmice.github.io/p/life-goal/</link><pubDate>Sun, 17 Mar 2024 20:14:21 +0800</pubDate><guid>https://churchmice.github.io/p/life-goal/</guid><description>&lt;h1 id="wish-list"&gt;wish list
+&lt;/h1&gt;&lt;ul&gt;
+&lt;li&gt;&lt;input disabled="" type="checkbox"&gt; 美国自驾游，从西海岸&lt;strong&gt;一路高清无码裸奔&lt;/strong&gt;到东海岸&lt;/li&gt;
+&lt;li&gt;&lt;input disabled="" type="checkbox"&gt; 西北自驾游，把各种线都走一遍&lt;/li&gt;
+&lt;li&gt;&lt;input disabled="" type="checkbox"&gt; 定居旧金山&lt;/li&gt;
+&lt;li&gt;&lt;input disabled="" type="checkbox"&gt; 有一个可爱的女儿&lt;/li&gt;
+&lt;li&gt;&lt;input disabled="" type="checkbox"&gt; 50岁的时候可以实现&lt;strong&gt;自由&lt;/strong&gt;，不一定要很多钱，但是可以活的更加随性一些&lt;/li&gt;
+&lt;li&gt;&lt;input disabled="" type="checkbox"&gt; 未完待续&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;img src="image/Pasted%20image%2020240317214846.png" alt="" /&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src="Pasted%20image%2020240317215256.png" alt="" /&gt;&lt;/p&gt;</description></item><item><title>Virtual Card</title><link>https://churchmice.github.io/p/virtual-card/</link><pubDate>Sun, 17 Mar 2024 19:47:06 +0800</pubDate><guid>https://churchmice.github.io/p/virtual-card/</guid><description>&lt;p&gt;这几天把N26/wise/ifast都开户了，也都激活了，不免有点空虚，闲下来了把整个开户过程记录下吧。这三个都是虚拟账户，都有IBAN( International Bank Account Number),直接填写IBAN就可以转账了。&lt;/p&gt;
+&lt;h1 id="n26"&gt;N26
+&lt;/h1&gt;&lt;p&gt;N26是德国的银行，可以在线开户，下载app之后地址选择德国即可。之后要进行一个视频面试，需要有一点点英文的基础，基本问题如下&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;是否本人开户&lt;/li&gt;
+&lt;li&gt;是否有人强迫你开户
 接着回让你们来回挥动护照，让你把护照合上然后问你的生日，证明你是这护照的主人。
 视频完了之后就一直&amp;rsquo;verify identity&amp;rsquo;，我算比较久的，大概过了一周之后才通过。
 通过之后需要入金激活，每个人的要求不一样，我的是需要入金10 EUR,直接拿香港汇丰转个10 EUR就行了。
 入金激活之后需要绑定设备，这样登录不用每次收短信，只有绑定设备之后才能查看卡号。按照步骤进行即可，但是我在最后的视频验证的时候总是拍出来的图像模糊，反反复复10来次，换不同的采光条件都是一样的结果。最后发现是root惹得祸，在magisk hide里面务必把这个app的所有intent都加到hide list里面，这样处理之后视频验证就过了。
-这个卡如果要实体卡的话需要有国外收货地址，遂放弃。&lt;/li>
-&lt;/ul>
-&lt;h1 id="wise">WISE
-&lt;/h1>&lt;p>wise开户的话全程中国资料，地址啥填的都是中国，开户还是蛮快的。
+这个卡如果要实体卡的话需要有国外收货地址，遂放弃。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="wise"&gt;WISE
+&lt;/h1&gt;&lt;p&gt;wise开户的话全程中国资料，地址啥填的都是中国，开户还是蛮快的。
 入金的话用N26就可以，选择debit card,然后去N26里面给的debit 卡号和ccv码填进去就可以了。
 如果要实体卡的话据说把地址改成马来西亚就可以了，然后收件地址填国内的，会从新加坡平信寄送到国内，但是不少人反应过了几个月都没收到，而且改地址有被要求地址验证的风险，遂放弃。
-这卡用了一次就收到了邮件调查，问我是不是PEP ( politically exposed position )，估计是跟某官员重名了，邮件如实回复就好，回复完之后账号一切正常。&lt;/p>
-&lt;h1 id="ifast">iFAST
-&lt;/h1>&lt;p>这个是英国公司，用护照注册即可，最后会让你录一段视频，说几句话，审核也挺快的。
-可以用WISE入金。&lt;/p></description></item></channel></rss>
+这卡用了一次就收到了邮件调查，问我是不是PEP ( politically exposed position )，估计是跟某官员重名了，邮件如实回复就好，回复完之后账号一切正常。&lt;/p&gt;
+&lt;h1 id="ifast"&gt;iFAST
+&lt;/h1&gt;&lt;p&gt;这个是英国公司，用护照注册即可，最后会让你录一段视频，说几句话，审核也挺快的。
+可以用WISE入金。&lt;/p&gt;</description></item></channel></rss>

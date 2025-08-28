@@ -1,898 +1,898 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Work on Free at last</title><link>https://churchmice.github.io/categories/work/</link><description>Recent content in Work on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 17 Mar 2024 14:00:22 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/categories/work/index.xml" rel="self" type="application/rss+xml"/><item><title>FPGA Bot</title><link>https://churchmice.github.io/p/fpga-bot/</link><pubDate>Sun, 17 Mar 2024 14:00:22 +0800</pubDate><guid>https://churchmice.github.io/p/fpga-bot/</guid><description>&lt;h2 id="起因">起因
-&lt;/h2>&lt;p>公司的服务器如果需要外发需要走外发申请(至安盾),需要有人审批之后才可以将文件进行放行。
-FPGA编译是在服务器上进行的,而且经常需要出一些调试版本，如果编译一次就走一遍外发申请的flow，那将是相当废时间的。所以是想用一种自动的方法可以将FPGA编译完成的内容直接让用户可以下载。&lt;/p>
-&lt;h1 id="原理">原理
-&lt;/h1>&lt;p>这个问题其实分几步走，原理其实和trustzone都有点类似，就是提供一种类似secure monitor的机制，接受用户提交的编译请求，编译完了就自动把文件拷贝到ftp的下载路径下，这样用户就可以直接通过ftp下载编译好的文件了。&lt;/p>
-&lt;h2 id="ftp">ftp
-&lt;/h2>&lt;p>用的是vsftp,只允许匿名用户下载，不允许上传。请注意千万不要把其他用户的ftp权限打开，尤其是不能打开chroot功能，否则用户就可以直接下载home目录里面的内容了。ftp的下载路径对应于服务器上的/var/ftp目录，在这个下面新建一个bitfile的文件夹，只允许bot用户有写权限。&lt;/p>
-&lt;h2 id="fpga-auto-build">fpga auto build
-&lt;/h2>&lt;p>一开始想用setuid来做的，虽然可以通过wrapper的方式让perl脚本以setuid的形式运行(EID != UID),但是在perl脚本里面如果还要调用其他脚本（是脚本，不是binary)那么这个setuid就会失效，除非也用类似binary wrapper的方式一层层套用下去。但是问题在于很多EDA工具和用户的接口其实也是个脚本文件，这样套壳的工作量就很大。
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Work on Free at last</title><link>https://churchmice.github.io/categories/work/</link><description>Recent content in Work on Free at last</description><generator>Hugo -- gohugo.io</generator><language>zh-cn</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 17 Mar 2024 14:00:22 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/categories/work/index.xml" rel="self" type="application/rss+xml"/><item><title>FPGA Bot</title><link>https://churchmice.github.io/p/fpga-bot/</link><pubDate>Sun, 17 Mar 2024 14:00:22 +0800</pubDate><guid>https://churchmice.github.io/p/fpga-bot/</guid><description>&lt;h2 id="起因"&gt;起因
+&lt;/h2&gt;&lt;p&gt;公司的服务器如果需要外发需要走外发申请(至安盾),需要有人审批之后才可以将文件进行放行。
+FPGA编译是在服务器上进行的,而且经常需要出一些调试版本，如果编译一次就走一遍外发申请的flow，那将是相当废时间的。所以是想用一种自动的方法可以将FPGA编译完成的内容直接让用户可以下载。&lt;/p&gt;
+&lt;h1 id="原理"&gt;原理
+&lt;/h1&gt;&lt;p&gt;这个问题其实分几步走，原理其实和trustzone都有点类似，就是提供一种类似secure monitor的机制，接受用户提交的编译请求，编译完了就自动把文件拷贝到ftp的下载路径下，这样用户就可以直接通过ftp下载编译好的文件了。&lt;/p&gt;
+&lt;h2 id="ftp"&gt;ftp
+&lt;/h2&gt;&lt;p&gt;用的是vsftp,只允许匿名用户下载，不允许上传。请注意千万不要把其他用户的ftp权限打开，尤其是不能打开chroot功能，否则用户就可以直接下载home目录里面的内容了。ftp的下载路径对应于服务器上的/var/ftp目录，在这个下面新建一个bitfile的文件夹，只允许bot用户有写权限。&lt;/p&gt;
+&lt;h2 id="fpga-auto-build"&gt;fpga auto build
+&lt;/h2&gt;&lt;p&gt;一开始想用setuid来做的，虽然可以通过wrapper的方式让perl脚本以setuid的形式运行(EID != UID),但是在perl脚本里面如果还要调用其他脚本（是脚本，不是binary)那么这个setuid就会失效，除非也用类似binary wrapper的方式一层层套用下去。但是问题在于很多EDA工具和用户的接口其实也是个脚本文件，这样套壳的工作量就很大。
 接着想到了代理的方式，就是用户提交过来的命令通过http的形式发送给server,server运行在root模式下，可以通过一些手段确定这个命令的确是这个用户提交的，然后su到bot执行命令。这种方式的问题是bot在编译过程中产生的一些终端输出无法实时的给到用户，而且如果要给的话其实要对cmd_server做进一步的加工。
-最后想到的是直接用sudo来做，这种方式的话需要在/etc/sudoers里面严格限定用户可以让bot用户sudo的命令。当然为了安全起见，限定了只有在特定组别的用户才能执行sudo命令。&lt;/p>
-&lt;h1 id="接口">接口
-&lt;/h1>&lt;p>最终提供给用户的是一个bot.cfg的配置文件，用户可以在这个配置文件里面进行配置，比如filelist的路径，xdc的路径等。配置完之后用户执行fpga_bot -c bot.cfg之后就会开始自动编译。&lt;/p>
-&lt;h2 id="安全">安全
-&lt;/h2>&lt;p>需要注意如下一些安全事项&lt;/p>
-&lt;ul>
-&lt;li>sudo bot只允许特定用户组调用特定命令,可以在/etc/sudoers文件里面加以限制&lt;/li>
-&lt;li>要防止FPGA编译的tcl文件里面调用exec函数，在编译之前会用脚本去扫描用户提供的tcl文件里面调用的命令，现在采用的是白名单机制，只允许read_xdc和read_ip这两条。&lt;/li>
-&lt;li>vsftp配置只允许anonymous登录，只允许下载，不允许上传&lt;/li>
-&lt;/ul></description></item><item><title>Building EDA server from scratch</title><link>https://churchmice.github.io/p/eda-server/</link><pubDate>Sun, 03 Mar 2024 13:06:43 +0800</pubDate><guid>https://churchmice.github.io/p/eda-server/</guid><description>&lt;h1 id="前言">前言
-&lt;/h1>&lt;p>在&lt;strong>老和山&lt;/strong>职业技术学院读书的时候就开始从事实验室的兼职网管，负责实验室的网络建设以及服务器的维护，也是时候写个文章把攒了这么多年的知识科普一下。&lt;/p>
-&lt;h2 id="硬件">硬件
-&lt;/h2>&lt;ul>
-&lt;li>&lt;strong>portal&lt;/strong>: 登录服务器，也是终端用户唯一可以访问的机器&lt;/li>
-&lt;li>&lt;strong>core&lt;/strong>: 核心服务器，上面部署了ipa,jenkins,gitlab,jira,sungrid等服务&lt;/li>
-&lt;li>&lt;strong>grid00&lt;/strong>: 运算服务器1，用作sungrid的computing node&lt;/li>
-&lt;li>&lt;strong>grid01&lt;/strong>: 运算服务器2，用作sungrid的computing node&lt;/li>
-&lt;li>&lt;strong>netapp&lt;/strong>: 存储服务器，做芯片的一般就用netapp&lt;/li>
-&lt;/ul>
-&lt;h2 id="网络配置">网络配置
-&lt;/h2>&lt;p>参考的网络拓扑如下&lt;/p>
-&lt;ul>
-&lt;li>一个内网段 &lt;strong>10.0.2.0/24&lt;/strong> (用于服务器之间的通信)&lt;/li>
-&lt;li>一个外网IP &lt;strong>192.168.5.100&lt;/strong> 用于终端客户的访问&lt;/li>
-&lt;li>自定义域名: ic.X.com&lt;/li>
-&lt;/ul>
-&lt;h2 id="系统安装">系统安装
-&lt;/h2>&lt;p>系统推荐用centos 7.9, 当然也可以用最新的centos 8 stream。在某些最新的server上面，硬件已经不支持centos 7了，所以只能装centos 8. 8和7的系统稍微在配置上稍微有一些差别。
-安装的时候把一些开发者工具都给装上可以避免后续很多问题。&lt;/p>
-&lt;h3 id="portal">portal
-&lt;/h3>&lt;p>对外的网卡 ext: ip 配置成 192.168.5.100&lt;br>
-对内的网卡 int: ip 配置成 10.0.2.1&lt;br>
-配置网卡的时候一些注意事项&lt;/p>
-&lt;ul>
-&lt;li>NetworkManager的影响: 如果是直接修改 /etc/sysconfig/network-scripts的方式进行配置的话，记得里面加一行 &lt;strong>NM_CONTROLLED=no&lt;/strong> ,或者干脆就把NetworkManger卸载掉得了&lt;/li>
-&lt;li>网卡的名字: 默认的名字总是奇奇怪怪，早起的叫ethX,后来变成emX,如果是光口，名字可能叫做p1p2这种，这种名字可以在ifcfg-&lt;em>xx&lt;/em> 里面进行修改
-可以使用以下命令对网卡名字做动态修改&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-fallback" data-lang="fallback">&lt;span class="line">&lt;span class="cl">ip link set old_device_name name new_device_name
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>如果是要静态修改的话需要对ifcfg-xx做以下修改&lt;/p>
-&lt;ul>
-&lt;li>将ifcfg_old_name重命名为ifcfg_new_name&lt;/li>
-&lt;li>将文件里面的DEVICE和NAME修改为new_name&lt;/li>
-&lt;li>HWADDR需要修改成网卡的真实地址&lt;/li>
-&lt;/ul>
-&lt;h3 id="core">core
-&lt;/h3>&lt;p>网卡 int: ip 配置成10.0.2.100
-额外注意事项&lt;/p>
-&lt;ul>
-&lt;li>该机器最后会当做flexlm的license server,有些license daemon是挑网卡名字的，比如TSMC的一定要求网卡的名字是&lt;strong>eth&lt;/strong> 打头，所以请至少保留一块网卡地址用这个名字&lt;/li>
-&lt;li>如果有改MAC地址需求的，需要再ifcfg-&lt;em>xx&lt;/em> 里面需要用&lt;strong>HWADDR&lt;/strong>指定网卡之前的MAC地址，让后用&lt;strong>MACADDR&lt;/strong>指明需要更改的MAC地址&lt;/li>
-&lt;/ul>
-&lt;h3 id="grid00">grid00
-&lt;/h3>&lt;p>网卡 int: ip 配置成 10.0.2.10&lt;/p>
-&lt;h3 id="grid01">grid01
-&lt;/h3>&lt;p>网卡 int: ip 配置成 10.0.2.12&lt;/p>
-&lt;h3 id="netapp">netapp
-&lt;/h3>&lt;p>取决于买的型号类型，一般需要配置业务口和管理口，后者仅用于管理功能，带宽需求不大。业务口的话推荐做链路聚合。&lt;/p>
-&lt;h2 id="软件安装及配置">软件安装及配置
-&lt;/h2>&lt;h3 id="ssh-免密登录">ssh 免密登录
-&lt;/h3>&lt;p>首先产生密钥对&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">ssh-keygen -t ed25519
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>不用RSA的原因是RSA的密钥长，计算工作量大，而且安全性也不高。题外话，RSA512现在已经可以用普通计算机进行暴力破解了。
-然后将公钥复制黏贴进对方机器的 &lt;strong>.ssh/authorized_keys&lt;/strong> 即可，当然你也可以用以下命令进行自动拷贝&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">ssh-copy-id -i eda25519.pub core
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="ntp">NTP
-&lt;/h3>&lt;p>使用chrony
-portal作为NTP server,提供定时服务给到10.0.2.0/24网段&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">root@portal:~ &lt;span class="c1">#-&amp;gt; cat /etc/chrony.conf |grep -v &amp;#39;^#&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">erver 0.centos.pool.ntp.org iburst
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">server 1.centos.pool.ntp.org iburst
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">server 2.centos.pool.ntp.org iburst
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">server 3.centos.pool.ntp.org iburst
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">driftfile /var/lib/chrony/drift
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">makestep 1.0 &lt;span class="m">3&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rtcsync
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">allow 10.0.2.0/24
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">local&lt;/span> stratum &lt;span class="m">10&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">logdir /var/log/chrony
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">log measurements statistics tracking
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>其他服务器需要将upstream设置为portal&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">root@grid00:~ &lt;span class="c1">#-&amp;gt;cat /etc/chrony.conf|grep -v &amp;#39;^#&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">server 10.0.2.1 iburst
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">driftfile /var/lib/chrony/drift
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">makestep 1.0 &lt;span class="m">3&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">rtcsync
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">logdir /var/log/chrony
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="ipa">IPA
-&lt;/h3>&lt;p>这个是一个认证服务器，大家可能听说过nis,nisplus,yellowpage,ldap其实本质都是一个东西，只不过扩展性不一样。IPA的话其实底层走的还是ldap那一套,只不过集成了管理界面，对用户更加友好。&lt;/p>
-&lt;h4 id="server安装">server安装
-&lt;/h4>&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">ipa-server-install -N --domain-level &lt;span class="m">0&lt;/span> --allow-zone-overlap --idstart &lt;span class="m">2000&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>注意其中的&lt;code>idstart&lt;/code> ，根据情况自己修改
+最后想到的是直接用sudo来做，这种方式的话需要在/etc/sudoers里面严格限定用户可以让bot用户sudo的命令。当然为了安全起见，限定了只有在特定组别的用户才能执行sudo命令。&lt;/p&gt;
+&lt;h1 id="接口"&gt;接口
+&lt;/h1&gt;&lt;p&gt;最终提供给用户的是一个bot.cfg的配置文件，用户可以在这个配置文件里面进行配置，比如filelist的路径，xdc的路径等。配置完之后用户执行fpga_bot -c bot.cfg之后就会开始自动编译。&lt;/p&gt;
+&lt;h2 id="安全"&gt;安全
+&lt;/h2&gt;&lt;p&gt;需要注意如下一些安全事项&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;sudo bot只允许特定用户组调用特定命令,可以在/etc/sudoers文件里面加以限制&lt;/li&gt;
+&lt;li&gt;要防止FPGA编译的tcl文件里面调用exec函数，在编译之前会用脚本去扫描用户提供的tcl文件里面调用的命令，现在采用的是白名单机制，只允许read_xdc和read_ip这两条。&lt;/li&gt;
+&lt;li&gt;vsftp配置只允许anonymous登录，只允许下载，不允许上传&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>Building EDA server from scratch</title><link>https://churchmice.github.io/p/eda-server/</link><pubDate>Sun, 03 Mar 2024 13:06:43 +0800</pubDate><guid>https://churchmice.github.io/p/eda-server/</guid><description>&lt;h1 id="前言"&gt;前言
+&lt;/h1&gt;&lt;p&gt;在&lt;strong&gt;老和山&lt;/strong&gt;职业技术学院读书的时候就开始从事实验室的兼职网管，负责实验室的网络建设以及服务器的维护，也是时候写个文章把攒了这么多年的知识科普一下。&lt;/p&gt;
+&lt;h2 id="硬件"&gt;硬件
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;portal&lt;/strong&gt;: 登录服务器，也是终端用户唯一可以访问的机器&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;core&lt;/strong&gt;: 核心服务器，上面部署了ipa,jenkins,gitlab,jira,sungrid等服务&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;grid00&lt;/strong&gt;: 运算服务器1，用作sungrid的computing node&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;grid01&lt;/strong&gt;: 运算服务器2，用作sungrid的computing node&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;netapp&lt;/strong&gt;: 存储服务器，做芯片的一般就用netapp&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="网络配置"&gt;网络配置
+&lt;/h2&gt;&lt;p&gt;参考的网络拓扑如下&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;一个内网段 &lt;strong&gt;10.0.2.0/24&lt;/strong&gt; (用于服务器之间的通信)&lt;/li&gt;
+&lt;li&gt;一个外网IP &lt;strong&gt;192.168.5.100&lt;/strong&gt; 用于终端客户的访问&lt;/li&gt;
+&lt;li&gt;自定义域名: ic.X.com&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="系统安装"&gt;系统安装
+&lt;/h2&gt;&lt;p&gt;系统推荐用centos 7.9, 当然也可以用最新的centos 8 stream。在某些最新的server上面，硬件已经不支持centos 7了，所以只能装centos 8. 8和7的系统稍微在配置上稍微有一些差别。
+安装的时候把一些开发者工具都给装上可以避免后续很多问题。&lt;/p&gt;
+&lt;h3 id="portal"&gt;portal
+&lt;/h3&gt;&lt;p&gt;对外的网卡 ext: ip 配置成 192.168.5.100&lt;br&gt;
+对内的网卡 int: ip 配置成 10.0.2.1&lt;br&gt;
+配置网卡的时候一些注意事项&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;NetworkManager的影响: 如果是直接修改 /etc/sysconfig/network-scripts的方式进行配置的话，记得里面加一行 &lt;strong&gt;NM_CONTROLLED=no&lt;/strong&gt; ,或者干脆就把NetworkManger卸载掉得了&lt;/li&gt;
+&lt;li&gt;网卡的名字: 默认的名字总是奇奇怪怪，早起的叫ethX,后来变成emX,如果是光口，名字可能叫做p1p2这种，这种名字可以在ifcfg-&lt;em&gt;xx&lt;/em&gt; 里面进行修改
+可以使用以下命令对网卡名字做动态修改&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-fallback" data-lang="fallback"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;ip link set old_device_name name new_device_name
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;如果是要静态修改的话需要对ifcfg-xx做以下修改&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;将ifcfg_old_name重命名为ifcfg_new_name&lt;/li&gt;
+&lt;li&gt;将文件里面的DEVICE和NAME修改为new_name&lt;/li&gt;
+&lt;li&gt;HWADDR需要修改成网卡的真实地址&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="core"&gt;core
+&lt;/h3&gt;&lt;p&gt;网卡 int: ip 配置成10.0.2.100
+额外注意事项&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;该机器最后会当做flexlm的license server,有些license daemon是挑网卡名字的，比如TSMC的一定要求网卡的名字是&lt;strong&gt;eth&lt;/strong&gt; 打头，所以请至少保留一块网卡地址用这个名字&lt;/li&gt;
+&lt;li&gt;如果有改MAC地址需求的，需要再ifcfg-&lt;em&gt;xx&lt;/em&gt; 里面需要用&lt;strong&gt;HWADDR&lt;/strong&gt;指定网卡之前的MAC地址，让后用&lt;strong&gt;MACADDR&lt;/strong&gt;指明需要更改的MAC地址&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="grid00"&gt;grid00
+&lt;/h3&gt;&lt;p&gt;网卡 int: ip 配置成 10.0.2.10&lt;/p&gt;
+&lt;h3 id="grid01"&gt;grid01
+&lt;/h3&gt;&lt;p&gt;网卡 int: ip 配置成 10.0.2.12&lt;/p&gt;
+&lt;h3 id="netapp"&gt;netapp
+&lt;/h3&gt;&lt;p&gt;取决于买的型号类型，一般需要配置业务口和管理口，后者仅用于管理功能，带宽需求不大。业务口的话推荐做链路聚合。&lt;/p&gt;
+&lt;h2 id="软件安装及配置"&gt;软件安装及配置
+&lt;/h2&gt;&lt;h3 id="ssh-免密登录"&gt;ssh 免密登录
+&lt;/h3&gt;&lt;p&gt;首先产生密钥对&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;ssh-keygen -t ed25519
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;不用RSA的原因是RSA的密钥长，计算工作量大，而且安全性也不高。题外话，RSA512现在已经可以用普通计算机进行暴力破解了。
+然后将公钥复制黏贴进对方机器的 &lt;strong&gt;.ssh/authorized_keys&lt;/strong&gt; 即可，当然你也可以用以下命令进行自动拷贝&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;ssh-copy-id -i eda25519.pub core
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="ntp"&gt;NTP
+&lt;/h3&gt;&lt;p&gt;使用chrony
+portal作为NTP server,提供定时服务给到10.0.2.0/24网段&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;root@portal:~ &lt;span class="c1"&gt;#-&amp;gt; cat /etc/chrony.conf |grep -v &amp;#39;^#&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;erver 0.centos.pool.ntp.org iburst
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;server 1.centos.pool.ntp.org iburst
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;server 2.centos.pool.ntp.org iburst
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;server 3.centos.pool.ntp.org iburst
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;driftfile /var/lib/chrony/drift
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;makestep 1.0 &lt;span class="m"&gt;3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;rtcsync
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;allow 10.0.2.0/24
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;local&lt;/span&gt; stratum &lt;span class="m"&gt;10&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;logdir /var/log/chrony
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;log measurements statistics tracking
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;其他服务器需要将upstream设置为portal&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;root@grid00:~ &lt;span class="c1"&gt;#-&amp;gt;cat /etc/chrony.conf|grep -v &amp;#39;^#&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;server 10.0.2.1 iburst
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;driftfile /var/lib/chrony/drift
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;makestep 1.0 &lt;span class="m"&gt;3&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;rtcsync
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;logdir /var/log/chrony
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="ipa"&gt;IPA
+&lt;/h3&gt;&lt;p&gt;这个是一个认证服务器，大家可能听说过nis,nisplus,yellowpage,ldap其实本质都是一个东西，只不过扩展性不一样。IPA的话其实底层走的还是ldap那一套,只不过集成了管理界面，对用户更加友好。&lt;/p&gt;
+&lt;h4 id="server安装"&gt;server安装
+&lt;/h4&gt;&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;ipa-server-install -N --domain-level &lt;span class="m"&gt;0&lt;/span&gt; --allow-zone-overlap --idstart &lt;span class="m"&gt;2000&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;注意其中的&lt;code&gt;idstart&lt;/code&gt; ，根据情况自己修改
 安装过程中会提示admin password和directory manager的password
-安装过程会提示上游DNS,填10.0.2.1&lt;/p>
-&lt;h4 id="client安装">client安装
-&lt;/h4>&lt;p>以grid00为例&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">ipa-client-install --server&lt;span class="o">=&lt;/span>core.ic.X.com --domain&lt;span class="o">=&lt;/span>grid00.ic.X.com -N --enable-dns-updates --hostname&lt;span class="o">=&lt;/span>grid00.ic.X.com
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h4 id="ssl-证书">SSL 证书
-&lt;/h4>&lt;p>在IPA server的安装过程中，会将产生的root CA放在/root/cacert.p12下面，可以用
-&lt;a href="https://hohnstaedt.de/xca/" target="_blank">xca&lt;/a>
+安装过程会提示上游DNS,填10.0.2.1&lt;/p&gt;
+&lt;h4 id="client安装"&gt;client安装
+&lt;/h4&gt;&lt;p&gt;以grid00为例&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;ipa-client-install --server&lt;span class="o"&gt;=&lt;/span&gt;core.ic.X.com --domain&lt;span class="o"&gt;=&lt;/span&gt;grid00.ic.X.com -N --enable-dns-updates --hostname&lt;span class="o"&gt;=&lt;/span&gt;grid00.ic.X.com
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id="ssl-证书"&gt;SSL 证书
+&lt;/h4&gt;&lt;p&gt;在IPA server的安装过程中，会将产生的root CA放在/root/cacert.p12下面，可以用
+&lt;a href="https://hohnstaedt.de/xca/" target="_blank"&gt;xca&lt;/a&gt;
 导入进行管理，以后可以用这个root CA签名新的证书。导入过程中会提示你输入密码，这个密码就是安装过程中输入的admin password。
-都已经2024年了，推荐所有的服务都上https&lt;/p>
-&lt;p>IPA的管理界面默认会占用80/443/8080/8443端口，请避免和其他服务冲突
-windows电脑登录的时候会跳出一个认证框，这是因为windows支持kerbose login, 可以通过在 /etc/httpd/conf.d/ipa.conf 里面添加如下配置禁用&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">GssapiSessionKey&lt;/span> file:/etc/httpd/alias/ipasession.key
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">BrowserMatch&lt;/span> Windows gssapi-no-negotiate
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h4 id="常见操作">常见操作
-&lt;/h4>&lt;h5 id="增加一个dns解析">增加一个DNS解析
-&lt;/h5>&lt;p>如果你只是想增加一个DNS解析的话，可以使用下面的命令（将gitlab.ic.X.com解析成10.0.2.100）&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">ipa dnsrecord-add ic.X.com. --name gitlab --a-rec 10.0.2.100
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h5 id="缓存刷新">缓存刷新
-&lt;/h5>&lt;p>刷新IPA缓存&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">sss_cache -E
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>刷新系统缓存&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">systemctl restart sssd
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="dns-解析">DNS 解析
-&lt;/h3>&lt;p>在portal上面安装dnsmasq并指定上游，例如 114
-修改所有机器的 /etc/resolv.conf&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">search ic.X.com
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">nameserver 10.0.2.100
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>这里再次吐槽NetworkManager,默认是会去把这个文件给overwrite掉的，需要做一些额外处理。或者就像我一样，不管三七二十一，直接把NetworkManager给干了。
-一个典型的查询场景如下所示，需要注意的是如果查询的域名位于ic.X.com，那直接在core就会返回查询结果。&lt;/p>
-&lt;pre class="mermaid">sequenceDiagram
+都已经2024年了，推荐所有的服务都上https&lt;/p&gt;
+&lt;p&gt;IPA的管理界面默认会占用80/443/8080/8443端口，请避免和其他服务冲突
+windows电脑登录的时候会跳出一个认证框，这是因为windows支持kerbose login, 可以通过在 /etc/httpd/conf.d/ipa.conf 里面添加如下配置禁用&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-apacheconf" data-lang="apacheconf"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;GssapiSessionKey&lt;/span&gt; file:/etc/httpd/alias/ipasession.key
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;BrowserMatch&lt;/span&gt; Windows gssapi-no-negotiate
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id="常见操作"&gt;常见操作
+&lt;/h4&gt;&lt;h5 id="增加一个dns解析"&gt;增加一个DNS解析
+&lt;/h5&gt;&lt;p&gt;如果你只是想增加一个DNS解析的话，可以使用下面的命令（将gitlab.ic.X.com解析成10.0.2.100）&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;ipa dnsrecord-add ic.X.com. --name gitlab --a-rec 10.0.2.100
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h5 id="缓存刷新"&gt;缓存刷新
+&lt;/h5&gt;&lt;p&gt;刷新IPA缓存&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;sss_cache -E
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;刷新系统缓存&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;systemctl restart sssd
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="dns-解析"&gt;DNS 解析
+&lt;/h3&gt;&lt;p&gt;在portal上面安装dnsmasq并指定上游，例如 114
+修改所有机器的 /etc/resolv.conf&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;search ic.X.com
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;nameserver 10.0.2.100
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;这里再次吐槽NetworkManager,默认是会去把这个文件给overwrite掉的，需要做一些额外处理。或者就像我一样，不管三七二十一，直接把NetworkManager给干了。
+一个典型的查询场景如下所示，需要注意的是如果查询的域名位于ic.X.com，那直接在core就会返回查询结果。&lt;/p&gt;
+&lt;pre class="mermaid"&gt;sequenceDiagram
 participant grid00
 participant core
 participant portal
 participant public_dns
-grid00 ->> core: DNS query for www.baidu.com
-core ->> portal: forward the query
-portal ->> public_dns: forward the query
-public_dns ->> portal: query result for www.baidu.com
-portal ->> core: query result for www.baidu.com
-core ->> grid00: query result for www.baidu.com
-&lt;/pre>
-&lt;h3 id="netapp-1">netapp
-&lt;/h3>&lt;p>将netapp的目录以NFS的方式挂载到各台机器上，建议挂载分区如下&lt;/p>
-&lt;ul>
-&lt;li>/proj: 项目相关的文件&lt;/li>
-&lt;li>/tools: EDA工具&lt;/li>
-&lt;li>/tmpdir: 临时目录，比如仿真文件等&lt;/li>
-&lt;li>/home: 用户主目录&lt;/li>
-&lt;li>/opt/sge: sungrid的共享目录，其实严格意义上来说只有SGE_CELL那个路径才需要共享，但是都共享了也没太大问题。直接用core分享也可以
-需要注意的是netapp默认的nfs4版本会进行root_squash,导致root账号被映射成了nobody,解决办法是在挂载的时候选择用nfs3挂载&lt;/li>
-&lt;/ul>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">10&lt;/span>.&lt;span class="err">0&lt;/span>.&lt;span class="err">2&lt;/span>.&lt;span class="err">155:/&lt;/span>&lt;span class="nb">home&lt;/span> &lt;span class="sx">/home&lt;/span> nfs defaults,async,nosuid,nodev,hard,intr,nfsvers=3,timeo=60,retrans=5 &lt;span class="m">0&lt;/span> &lt;span class="m">0&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>netapp如果要关系，需要使用以下命令,要防止主node被backup node给take over掉&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">system node halt -node * -skip-lif-migration-before-shutdown &lt;span class="nb">true&lt;/span> -ignore-quorum-warnings &lt;span class="nb">true&lt;/span> -inhibit-takeover &lt;span class="nb">true&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="gcc">gcc
-&lt;/h3>&lt;p>系统如果要安装多个gcc版本，建议下载源码解压之后用如下方式进行编译&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">./contrib/download_prerequisites
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">mkdir build &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> &lt;span class="nb">cd&lt;/span> build
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">../configure --prefix&lt;span class="o">=&lt;/span>/tools/misc/gcc/xx.xx.xx --enable-checking&lt;span class="o">=&lt;/span>release --enable-languages&lt;span class="o">=&lt;/span>c,c++ --enable-threads&lt;span class="o">=&lt;/span>posix --disable-multilib --with-system-zlib
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">make -j64 &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> make install
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>版本之间的切换可以用
-&lt;a href="https://modules.readthedocs.io/en/latest/" target="_blank">modules&lt;/a>
-进行管理。&lt;/p>
-&lt;h3 id="sungrid">sungrid
-&lt;/h3>&lt;p>sungrid是一个开源的集群运算软件，在core上执行&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">yum install -y jemalloc gridengine gridengine-execd gridengine-guiinst gridengine-qmaster gridengine-qmon
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>然后通过如下命令启动图形安装界面&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">&lt;span class="nb">cd&lt;/span> /opt/sge &lt;span class="o">&amp;amp;&amp;amp;&lt;/span> ./start_gui_installer
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="gitlab">gitlab
-&lt;/h3>&lt;p>
-&lt;a href="https://about.gitlab.com/" target="_blank">gitlab&lt;/a>
+grid00 -&gt;&gt; core: DNS query for www.baidu.com
+core -&gt;&gt; portal: forward the query
+portal -&gt;&gt; public_dns: forward the query
+public_dns -&gt;&gt; portal: query result for www.baidu.com
+portal -&gt;&gt; core: query result for www.baidu.com
+core -&gt;&gt; grid00: query result for www.baidu.com
+&lt;/pre&gt;
+&lt;h3 id="netapp-1"&gt;netapp
+&lt;/h3&gt;&lt;p&gt;将netapp的目录以NFS的方式挂载到各台机器上，建议挂载分区如下&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;/proj: 项目相关的文件&lt;/li&gt;
+&lt;li&gt;/tools: EDA工具&lt;/li&gt;
+&lt;li&gt;/tmpdir: 临时目录，比如仿真文件等&lt;/li&gt;
+&lt;li&gt;/home: 用户主目录&lt;/li&gt;
+&lt;li&gt;/opt/sge: sungrid的共享目录，其实严格意义上来说只有SGE_CELL那个路径才需要共享，但是都共享了也没太大问题。直接用core分享也可以
+需要注意的是netapp默认的nfs4版本会进行root_squash,导致root账号被映射成了nobody,解决办法是在挂载的时候选择用nfs3挂载&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-apacheconf" data-lang="apacheconf"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;10&lt;/span&gt;.&lt;span class="err"&gt;0&lt;/span&gt;.&lt;span class="err"&gt;2&lt;/span&gt;.&lt;span class="err"&gt;155:/&lt;/span&gt;&lt;span class="nb"&gt;home&lt;/span&gt; &lt;span class="sx"&gt;/home&lt;/span&gt; nfs defaults,async,nosuid,nodev,hard,intr,nfsvers=3,timeo=60,retrans=5 &lt;span class="m"&gt;0&lt;/span&gt; &lt;span class="m"&gt;0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;netapp如果要关系，需要使用以下命令,要防止主node被backup node给take over掉&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;system node halt -node * -skip-lif-migration-before-shutdown &lt;span class="nb"&gt;true&lt;/span&gt; -ignore-quorum-warnings &lt;span class="nb"&gt;true&lt;/span&gt; -inhibit-takeover &lt;span class="nb"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="gcc"&gt;gcc
+&lt;/h3&gt;&lt;p&gt;系统如果要安装多个gcc版本，建议下载源码解压之后用如下方式进行编译&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;./contrib/download_prerequisites
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;mkdir build &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="nb"&gt;cd&lt;/span&gt; build
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;../configure --prefix&lt;span class="o"&gt;=&lt;/span&gt;/tools/misc/gcc/xx.xx.xx --enable-checking&lt;span class="o"&gt;=&lt;/span&gt;release --enable-languages&lt;span class="o"&gt;=&lt;/span&gt;c,c++ --enable-threads&lt;span class="o"&gt;=&lt;/span&gt;posix --disable-multilib --with-system-zlib
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;make -j64 &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; make install
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;版本之间的切换可以用
+&lt;a href="https://modules.readthedocs.io/en/latest/" target="_blank"&gt;modules&lt;/a&gt;
+进行管理。&lt;/p&gt;
+&lt;h3 id="sungrid"&gt;sungrid
+&lt;/h3&gt;&lt;p&gt;sungrid是一个开源的集群运算软件，在core上执行&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;yum install -y jemalloc gridengine gridengine-execd gridengine-guiinst gridengine-qmaster gridengine-qmon
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;然后通过如下命令启动图形安装界面&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;cd&lt;/span&gt; /opt/sge &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; ./start_gui_installer
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="gitlab"&gt;gitlab
+&lt;/h3&gt;&lt;p&gt;
+&lt;a href="https://about.gitlab.com/" target="_blank"&gt;gitlab&lt;/a&gt;
 是一个可以私有部署的程序员内部交友网站，主要的配置文件是/etc/gitlab/gitlab.rb。
-最重要的数据文件推荐放在netapp的存储上面，备份文件建议放在core的本地存储上面，对应的配置如下&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-ruby" data-lang="ruby">&lt;span class="line">&lt;span class="cl"> &lt;span class="n">git_data_dirs&lt;/span>&lt;span class="p">({&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;default&amp;#34;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s2">&amp;#34;path&amp;#34;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s2">&amp;#34;/proj/git&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">})&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;manage_backup_path&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kp">true&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;backup_path&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;/data/backup/gitlab&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;backup_gitaly_backup_path&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;/opt/gitlab/embedded/bin/gitaly-backup&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;backup_keep_time&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">2592000&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>对gitlab.rb的内容进行更改之后，需要通过如下命令进行配置刷新&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gitlab-ctl reconfigure
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h4 id="ssl">ssl
-&lt;/h4>&lt;p>要将CA放到 &lt;strong>/etc/gitlab/trusted-certs&lt;/strong> 下面
-修改gitlab.rb,关键配置如下&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-ruby" data-lang="ruby">&lt;span class="line">&lt;span class="cl">&lt;span class="n">nginx&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;ssl_certificate&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;/etc/ssl/ic.X.com/server.crt&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">nginx&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;ssl_certificate_key&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s2">&amp;#34;/etc/ssl/ic.X.com/server.key&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">external_url&lt;/span> &lt;span class="s1">&amp;#39;https://core.ic.X.com&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="n">nginx&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;listen_port&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="mi">1024&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>可以通过下面的rewrite rule将
-&lt;a href="https://git.ic.X.com" target="_blank">https://git.ic.X.com&lt;/a>
+最重要的数据文件推荐放在netapp的存储上面，备份文件建议放在core的本地存储上面，对应的配置如下&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-ruby" data-lang="ruby"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;git_data_dirs&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;default&amp;#34;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s2"&gt;&amp;#34;path&amp;#34;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;/proj/git&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;})&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;gitlab_rails&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;manage_backup_path&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kp"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;gitlab_rails&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;backup_path&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;/data/backup/gitlab&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;gitlab_rails&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;backup_gitaly_backup_path&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;/opt/gitlab/embedded/bin/gitaly-backup&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;gitlab_rails&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;backup_keep_time&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;2592000&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;对gitlab.rb的内容进行更改之后，需要通过如下命令进行配置刷新&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gitlab-ctl reconfigure
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id="ssl"&gt;ssl
+&lt;/h4&gt;&lt;p&gt;要将CA放到 &lt;strong&gt;/etc/gitlab/trusted-certs&lt;/strong&gt; 下面
+修改gitlab.rb,关键配置如下&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-ruby" data-lang="ruby"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;nginx&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ssl_certificate&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;/etc/ssl/ic.X.com/server.crt&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;nginx&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ssl_certificate_key&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;/etc/ssl/ic.X.com/server.key&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;external_url&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;https://core.ic.X.com&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="n"&gt;nginx&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;listen_port&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;1024&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;可以通过下面的rewrite rule将
+&lt;a href="https://git.ic.X.com" target="_blank"&gt;https://git.ic.X.com&lt;/a&gt;
 重定向到
-&lt;a href="https://core.ic.X.com:1024" target="_blank">https://core.ic.X.com:1024&lt;/a>
-&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@core:~&lt;/span> &lt;span class="c">#-&amp;gt; cat /etc/httpd/conf.d/gitlab-rewrite.conf&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c"># VERSION 6 - DO NOT REMOVE THIS LINE&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">RewriteEngine&lt;/span> &lt;span class="k">on&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">RewriteRule&lt;/span> ^/gitlab https://core.ic.X.com:1024 [L,R=301]
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h4 id="ldap">ldap
-&lt;/h4>&lt;p>修改gitlab.rb.关键配置如下&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;span class="lnt">19
-&lt;/span>&lt;span class="lnt">20
-&lt;/span>&lt;span class="lnt">21
-&lt;/span>&lt;span class="lnt">22
-&lt;/span>&lt;span class="lnt">23
-&lt;/span>&lt;span class="lnt">24
-&lt;/span>&lt;span class="lnt">25
-&lt;/span>&lt;span class="lnt">26
-&lt;/span>&lt;span class="lnt">27
-&lt;/span>&lt;span class="lnt">28
-&lt;/span>&lt;span class="lnt">29
-&lt;/span>&lt;span class="lnt">30
-&lt;/span>&lt;span class="lnt">31
-&lt;/span>&lt;span class="lnt">32
-&lt;/span>&lt;span class="lnt">33
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-ruby" data-lang="ruby">&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;ldap_enabled&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kp">true&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;prevent_ldap_sign_in&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="kp">false&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="n">gitlab_rails&lt;/span>&lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;ldap_servers&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;main&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;label&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;LDAP&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;host&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;core.ic.X.com&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;port&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="mi">636&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;uid&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;uid&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;bind_dn&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;uid=dummy,cn=users,cn=accounts,dc=ic,dc=X,dc=com&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;base&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;dc=ic,dc=X,dc=com&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;password&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;password for dummy&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;encryption&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;simple_tls&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;verify_certificates&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kp">true&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;smartcard_auth&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kp">false&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;active_directory&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kp">false&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;allow_username_or_email_login&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kp">true&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;lowercase_usernames&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kp">false&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;block_auto_created_users&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kp">false&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;user_filter&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;memberOf=cn=staff,cn=groups,cn=accounts,dc=ic,dc=X,dc=com&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;attributes&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;username&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;uid&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;email&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="o">[&lt;/span>&lt;span class="s1">&amp;#39;Email&amp;#39;&lt;/span>&lt;span class="o">]&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;name&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;cn&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;first_name&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;givenName&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;last_name&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;sn&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">},&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">## EE only&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;group_base&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;cn=groups,cn=accounts,dc=ic,dc=X,dc=com&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;admin_group&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="s1">&amp;#39;&amp;#39;&lt;/span>&lt;span class="p">,&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="s1">&amp;#39;sync_ssh_keys&amp;#39;&lt;/span> &lt;span class="o">=&amp;gt;&lt;/span> &lt;span class="kp">false&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>配置完之后可以用如下命令进行测试&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">gitlab-rake gitlab:ladap:check
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h4 id="migration">migration
-&lt;/h4>&lt;p>可以用如下的方式进行迁移&lt;/p>
-&lt;ol>
-&lt;li>进入旧文件夹，git remote 解除远端reposity的绑定&lt;/li>
-&lt;li>git remote 添加新远端repository&lt;/li>
-&lt;li>git push&lt;/li>
-&lt;/ol>
-&lt;h3 id="jenkins">jenkins
-&lt;/h3>&lt;h4 id="ssl-1">ssl
-&lt;/h4>&lt;p>jenkins用的是java那一套，所以ssl的支持稍微麻烦一点。
-CA: &lt;strong>update-ca-trust&lt;/strong> 本身就已经产生了java需要的CA,具体的路径是 &lt;strong>/etc/pki/ca-trust/extracted/java/cacerts&lt;/strong>
-https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,其中changeit是证书导出的时候设置的密码&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-shell" data-lang="shell">&lt;span class="line">&lt;span class="cl">keytool -importkeystore -srcstorepass changeit -deststorepass changeit -srckeystore ssl.pfx -srcstoretype pkcs12 -destkeystore jenkins.jks -deststoretype JKS
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>修改配置文件 &lt;strong>/usr/lib/systemd/system/jenkins.service&lt;/strong>，关键配置如下:&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;span class="lnt">19
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@core:~&lt;/span> &lt;span class="c">#-&amp;gt; cat /usr/lib/systemd/system/jenkins.service|grep -v &amp;#39;^#&amp;#39;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c">#jenkins is picky on java version, must use version 17&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">Environment=&amp;#34;JAVA_HOME=/usr/java/jdk-17&lt;/span>.&lt;span class="err">0&lt;/span>.&lt;span class="err">5&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">Environment=&amp;#34;JENKINS_JAVA_CMD=/usr/java/jdk-17&lt;/span>.&lt;span class="err">0&lt;/span>.&lt;span class="err">5/bin/java&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c">#load the CA so we can use ldaps &lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">Environment=&amp;#34;JAVA_OPTS=-Djava&lt;/span>.&lt;span class="err">awt&lt;/span>.&lt;span class="err">headless=&lt;/span>&lt;span class="nb">true&lt;/span> -Djavax.net.ssl.trustStore=/home/jenkins/config/cacerts -Djavax.net.ssl.trustStorePassword=changeit&lt;span class="s2">&amp;#34;
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">#turn off http and enable https
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_PORT=-1&lt;span class="s2">&amp;#34;
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_HTTPS_LISTEN_ADDRESS=10.0.2.100&lt;span class="s2">&amp;#34;
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_HTTPS_PORT=8888&lt;span class="s2">&amp;#34;
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">#specify the https ceritificate
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_HTTPS_KEYSTORE=/home/jenkins/config/jenkins.jks&lt;span class="s2">&amp;#34;
-&lt;/span>&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="s2">Environment=&amp;#34;&lt;/span>JENKINS_HTTPS_KEYSTORE_PASSWORD=changeit&lt;span class="err">&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[Install]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">WantedBy=multi-user&lt;/span>.&lt;span class="nb">target&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h4 id="ldap-1">ldap
-&lt;/h4>&lt;p>需要安装ldap插件，&lt;strong>/home/jenkins/config.xml&lt;/strong> 里面的关键配置信息如下&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;span class="lnt">19
-&lt;/span>&lt;span class="lnt">20
-&lt;/span>&lt;span class="lnt">21
-&lt;/span>&lt;span class="lnt">22
-&lt;/span>&lt;span class="lnt">23
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-xml" data-lang="xml">&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;securityRealm&lt;/span> &lt;span class="na">class=&lt;/span>&lt;span class="s">&amp;#34;hudson.security.LDAPSecurityRealm&amp;#34;&lt;/span> &lt;span class="na">plugin=&lt;/span>&lt;span class="s">&amp;#34;ldap@682.v7b_544c9d1512&amp;#34;&lt;/span>&lt;span class="nt">&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;disableMailAddressResolver&amp;gt;&lt;/span>false&lt;span class="nt">&amp;lt;/disableMailAddressResolver&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;configurations&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;jenkins.security.plugins.ldap.LDAPConfiguration&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;server&amp;gt;&lt;/span>ldaps://core.ic.X.com&lt;span class="nt">&amp;lt;/server&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;rootDN&amp;gt;&lt;/span>dc=ic,dc=X,dc=com&lt;span class="nt">&amp;lt;/rootDN&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;inhibitInferRootDN&amp;gt;&lt;/span>false&lt;span class="nt">&amp;lt;/inhibitInferRootDN&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;userSearchBase&amp;gt;&lt;/span>cn=users,cn=accounts&lt;span class="nt">&amp;lt;/userSearchBase&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;userSearch&amp;gt;&lt;/span>uid={0}&lt;span class="nt">&amp;lt;/userSearch&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;groupMembershipStrategy&lt;/span> &lt;span class="na">class=&lt;/span>&lt;span class="s">&amp;#34;jenkins.security.plugins.ldap.FromGroupSearchLDAPGroupMembershipStrategy&amp;#34;&lt;/span>&lt;span class="nt">&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;filter&amp;gt;&amp;lt;/filter&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/groupMembershipStrategy&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;managerDN&amp;gt;&lt;/span>uid=dummy,cn=users,cn=accounts,dc=ic,dc=X,dc=com&lt;span class="nt">&amp;lt;/managerDN&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;managerPasswordSecret&amp;gt;&lt;/span>{dummy_password_hash}&lt;span class="nt">&amp;lt;/managerPasswordSecret&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;displayNameAttributeName&amp;gt;&lt;/span>displayname&lt;span class="nt">&amp;lt;/displayNameAttributeName&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;mailAddressAttributeName&amp;gt;&lt;/span>mail&lt;span class="nt">&amp;lt;/mailAddressAttributeName&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;ignoreIfUnavailable&amp;gt;&lt;/span>false&lt;span class="nt">&amp;lt;/ignoreIfUnavailable&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/jenkins.security.plugins.ldap.LDAPConfiguration&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/configurations&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;userIdStrategy&lt;/span> &lt;span class="na">class=&lt;/span>&lt;span class="s">&amp;#34;jenkins.model.IdStrategy$CaseInsensitive&amp;#34;&lt;/span>&lt;span class="nt">/&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;groupIdStrategy&lt;/span> &lt;span class="na">class=&lt;/span>&lt;span class="s">&amp;#34;jenkins.model.IdStrategy$CaseInsensitive&amp;#34;&lt;/span>&lt;span class="nt">/&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;disableRolePrefixing&amp;gt;&lt;/span>true&lt;span class="nt">&amp;lt;/disableRolePrefixing&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;/securityRealm&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>如果因为某些原因导致更改完了登录不了jenkins ( 比如权限忘记配置了)，只需要将下面的配置从true改为false即可&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-xml" data-lang="xml">&lt;span class="line">&lt;span class="cl"> &lt;span class="nt">&amp;lt;useSecurity&amp;gt;&lt;/span>true&lt;span class="nt">&amp;lt;/useSecurity&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="etx">ETX
-&lt;/h3>&lt;p>这是一个服务器登录软件。推荐
-&lt;a href="https://www.opentext.nl/products-and-solutions/products/specialty-technologies/connectivity/exceed-ondemand" target="_blank">EXT&lt;/a>
-，吊打一切牛鬼蛇神，主要优势有以下几个&lt;/p>
-&lt;ul>
-&lt;li>只用开放一个端口即可，这样就方便进行管理。vnc这种每个用户都开一个端口的方式一是不方便管理，而是有漏洞，用户要进行脱库操作很容易。&lt;/li>
-&lt;li>可以对上传下载权限进行单独管理，一般只允许上传，不允许下载&lt;/li>
-&lt;li>可以限制从服务器到本地复制黏贴的字符个数，有效的防止了用户通过&lt;strong>CTRL+C&lt;/strong> &lt;strong>CTRL+V&lt;/strong> 的方式拷贝代码到本地&lt;/li>
-&lt;li>集成ldap认证，可对用户登录以及可见的profile做限制
-当然他的缺点也是显而易见的，那就是需要花钱购买。这公司的销售人员也是非常了解国情，默认都是提供买断的license服务，一次购买，终身可用，然后单个license的价格还是不便宜。&lt;/li>
-&lt;/ul>
-&lt;h4 id="server">server
-&lt;/h4>&lt;p>建议安装在core上面，然后通过端口映射的方式映射到portal的8443端口&lt;/p>
-&lt;h4 id="node">node
-&lt;/h4>&lt;p>建议安装在portal上面，默认端口是5510
-添加node的时候选择10.0.2.1,端口5510,然后再client IP里面进行重映射，比如192.168.5.100:5510&lt;/p>
-&lt;h4 id="ssl-2">ssl
-&lt;/h4>&lt;p>如果要增加ssl支持，需要修改 &lt;strong>$INSTALL_DIR/data/ssl&lt;/strong> 里面的 &lt;strong>server.key&lt;/strong> 和&lt;strong>server.crt&lt;/strong>. 可以用前文提到的xca工具生成，懒人的话建议生成通配符证书即可。
-另外其实在linux上面做ETX的多开很容易，文件夹复制黏贴改个名字就行了。Windows node 复制黏贴比较麻烦，暂时还没有花精力去搞。至于为何要多开？那当然是解决license个数不足的问题了。&lt;/p>
-&lt;h3 id="flexlm">flexlm
-&lt;/h3>&lt;p>几乎所有的eda工具都是用flexlm来管理的，这个和谐方式也是各式各样。有一些注意事项&lt;/p>
-&lt;ol>
-&lt;li>允许在同一个端口上起多个vendor的license daemon,比如你可以把不同家的license文件里面的端口都改成一样的，然后lmgrd一起启动&lt;/li>
-&lt;li>一些和谐版的license daemon会有相互打架的情况，所以1的前提就不成立了&lt;/li>
-&lt;li>有些vendor daemon对网卡名字有特别要求，一定要求是 &lt;em>eth&lt;/em> 开头，比如TSMC&lt;/li>
-&lt;li>license文件可以进行复制操作，比如你只买了10个正版license，如何扩展成100个，土鳖一点的方法就是用虚拟机多开，修改MAC地址。但是其实不用这么麻烦的，你在一台机器上也有办法实现开N个相同的vendor daemon的。
-由于可能不是那么众所周知的原因，宝岛台湾的一些工具是不使用flexlm管理的。个人推测一方面是成本考虑，另一方面是因为他们知道flexlm的license很容易被和谐，又不像大厂可以承受被破解的代价，所以就自己开发了一套软件授权管理工具。&lt;/li>
-&lt;/ol>
-&lt;h3 id="mirror">mirror
-&lt;/h3>&lt;p>在core上面设置centos的mirror,portal通过rsync的方式将外部的mirror同步到core上
-一个简单的用perl写的同步脚本如下&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;span class="lnt">19
-&lt;/span>&lt;span class="lnt">20
-&lt;/span>&lt;span class="lnt">21
-&lt;/span>&lt;span class="lnt">22
-&lt;/span>&lt;span class="lnt">23
-&lt;/span>&lt;span class="lnt">24
-&lt;/span>&lt;span class="lnt">25
-&lt;/span>&lt;span class="lnt">26
-&lt;/span>&lt;span class="lnt">27
-&lt;/span>&lt;span class="lnt">28
-&lt;/span>&lt;span class="lnt">29
-&lt;/span>&lt;span class="lnt">30
-&lt;/span>&lt;span class="lnt">31
-&lt;/span>&lt;span class="lnt">32
-&lt;/span>&lt;span class="lnt">33
-&lt;/span>&lt;span class="lnt">34
-&lt;/span>&lt;span class="lnt">35
-&lt;/span>&lt;span class="lnt">36
-&lt;/span>&lt;span class="lnt">37
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-perl" data-lang="perl">&lt;span class="line">&lt;span class="cl">&lt;span class="ch">#!/usr/bin/perl&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">use&lt;/span> &lt;span class="nn">strict&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">use&lt;/span> &lt;span class="nn">warnings&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">my&lt;/span> &lt;span class="nv">$lock_file&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;/run/lock/subsys/repo_rsync&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">exit&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="o">-&lt;/span>&lt;span class="n">e&lt;/span> &lt;span class="nv">$lock_file&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#Set the PATH&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nv">$ENV&lt;/span>&lt;span class="p">{&lt;/span>&lt;span class="s">&amp;#39;PATH&amp;#39;&lt;/span>&lt;span class="p">}&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;/bin:/usr/bin:/sbin&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;touch $lock_file&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">my&lt;/span> &lt;span class="nv">$base_path&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;/repo/centos&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">my&lt;/span> &lt;span class="nv">$version&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="s">&amp;#34;7.9.2009&amp;#34;&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">my&lt;/span> &lt;span class="nv">@parts&lt;/span> &lt;span class="o">=&lt;/span> &lt;span class="sx">qw ( &lt;/span>&lt;span class="n">centosplus&lt;/span> &lt;span class="n">os&lt;/span> &lt;span class="n">updates&lt;/span> &lt;span class="n">extras&lt;/span> &lt;span class="n">contrib&lt;/span> &lt;span class="n">epel&lt;/span> &lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#my @parts = qw ( epel );&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#Invoke the rsync to update the repo&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#For rpmforge, use this one rsync://ftp-stud.fht-esslingen.de/dag&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">foreach&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nv">@parts&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">next&lt;/span> &lt;span class="k">if&lt;/span> &lt;span class="nv">$_&lt;/span> &lt;span class="ow">eq&lt;/span> &lt;span class="s">&amp;#39;contrib&amp;#39;&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="k">if&lt;/span> &lt;span class="p">(&lt;/span> &lt;span class="nv">$_&lt;/span> &lt;span class="ow">eq&lt;/span> &lt;span class="s">&amp;#39;epel&amp;#39;&lt;/span> &lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">system&lt;/span>&lt;span class="p">(&lt;/span> &lt;span class="s">&amp;#34;rsync -avSHP --exclude &amp;#39;debug&amp;#39; --exclude &amp;#39;repodata&amp;#39; --exclude &amp;#39;repoview&amp;#39; --delete --delete-excluded rsync://mirror.sjtu.edu.cn/fedora/epel/7/x86_64/ $base_path/$version/$_/x86_64/Packages/&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>&lt;span class="k">else&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">#system( &amp;#34;rsync -avSHP --delete rsync.mirrors.ustc.edu.cn::repo/centos/$version/$_/x86_64/Packages/ $base_path/$version/$_/x86_64/Packages/&amp;#34;);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="c1">#update: need to remove the repo prefix&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">system&lt;/span>&lt;span class="p">(&lt;/span> &lt;span class="s">&amp;#34;rsync -avSHP --delete rsync.mirrors.ustc.edu.cn::centos/$version/$_/x86_64/Packages/ $base_path/$version/$_/x86_64/Packages/&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="c1">#Invoke createrepo&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="k">foreach&lt;/span> &lt;span class="p">(&lt;/span>&lt;span class="nv">@parts&lt;/span>&lt;span class="p">)&lt;/span> &lt;span class="p">{&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">system&lt;/span>&lt;span class="p">(&lt;/span>&lt;span class="s">&amp;#34;ssh core createrepo --workers 16 $base_path/$version/$_/x86_64&amp;#34;&lt;/span>&lt;span class="p">);&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="p">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">unlink&lt;/span> &lt;span class="nv">$lock_file&lt;/span>&lt;span class="p">;&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>在core上面讲mirror通过https的形式提供给其他人，具体的方法如下&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;span class="lnt">2
-&lt;/span>&lt;span class="lnt">3
-&lt;/span>&lt;span class="lnt">4
-&lt;/span>&lt;span class="lnt">5
-&lt;/span>&lt;span class="lnt">6
-&lt;/span>&lt;span class="lnt">7
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@core:&lt;/span> &lt;span class="c">#-&amp;gt; cat /etc/httpd/conf.d/repo.conf&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">Alias&lt;/span> &lt;span class="sx">/centos&lt;/span> &lt;span class="s2">&amp;#34;/repo/centos&amp;#34;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;Directory&lt;/span> &lt;span class="s">/repo/centos&lt;/span>&lt;span class="nt">&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">Options&lt;/span> Indexes FollowSymLinks MultiViews
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">AllowOverride&lt;/span> &lt;span class="k">all&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">Require&lt;/span> &lt;span class="k">all&lt;/span> granted
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nt">&amp;lt;/Directory&amp;gt;&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;p>最后修改机器的更新源为core&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;span class="lnt">12
-&lt;/span>&lt;span class="lnt">13
-&lt;/span>&lt;span class="lnt">14
-&lt;/span>&lt;span class="lnt">15
-&lt;/span>&lt;span class="lnt">16
-&lt;/span>&lt;span class="lnt">17
-&lt;/span>&lt;span class="lnt">18
-&lt;/span>&lt;span class="lnt">19
-&lt;/span>&lt;span class="lnt">20
-&lt;/span>&lt;span class="lnt">21
-&lt;/span>&lt;span class="lnt">22
-&lt;/span>&lt;span class="lnt">23
-&lt;/span>&lt;span class="lnt">24
-&lt;/span>&lt;span class="lnt">25
-&lt;/span>&lt;span class="lnt">26
-&lt;/span>&lt;span class="lnt">27
-&lt;/span>&lt;span class="lnt">28
-&lt;/span>&lt;span class="lnt">29
-&lt;/span>&lt;span class="lnt">30
-&lt;/span>&lt;span class="lnt">31
-&lt;/span>&lt;span class="lnt">32
-&lt;/span>&lt;span class="lnt">33
-&lt;/span>&lt;span class="lnt">34
-&lt;/span>&lt;span class="lnt">35
-&lt;/span>&lt;span class="lnt">36
-&lt;/span>&lt;span class="lnt">37
-&lt;/span>&lt;span class="lnt">38
-&lt;/span>&lt;span class="lnt">39
-&lt;/span>&lt;span class="lnt">40
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@core:&lt;/span> &lt;span class="c">#-&amp;gt; cat /etc/yum.repos.d/local.repo&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-base]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Base
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/os/$basearch/&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgkey=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-updates]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Updates
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/updates/$basearch/&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgkey=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-extras]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Extras
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/extras/$basearch/&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgkey=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-centosplus]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Plus
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/centosplus/$basearch/&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgkey=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-contrib]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Contrib
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/contrib/$basearch/&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=0&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">[local-epel]&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">name=local-$&lt;/span>&lt;span class="nb">releasever&lt;/span> - Epel
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">baseurl=https://core&lt;/span>.&lt;span class="err">ic&lt;/span>.&lt;span class="err">X&lt;/span>.&lt;span class="err">com/centos/$releasever/epel/$basearch/&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">gpgcheck=0&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">enabled=1&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h2 id="安全设置">安全设置
-&lt;/h2>&lt;h3 id="selinux">selinux
-&lt;/h3>&lt;p>这个东西很好，但是也很麻烦，如果不是很会折腾，建议关闭:&lt;/p>
-&lt;blockquote>
-&lt;p>编辑 /etc/sysconfig/selinux, 将里面的SELINUX更改成disabled，然后重启&lt;/p>&lt;/blockquote>
-&lt;h3 id="ssh限制">ssh限制
-&lt;/h3>&lt;p>需要在/etc/ssh/sshd_config里面做如下配置&lt;/p>
-&lt;ul>
-&lt;li>普通用户关闭ssh登录权限&lt;/li>
-&lt;li>打开core上的git登录权限，这是为了使用ssh进行git的checkout&lt;/li>
-&lt;li>只允许基于ssh key的登录方式，这是为了防止MTIM攻击&lt;/li>
-&lt;/ul>
-&lt;h3 id="防火墙配置">防火墙配置
-&lt;/h3>&lt;p>内网的机器可以把防火墙都关掉&lt;br>
-portal上面的防火墙只开放必要的端口，INPUT/OUTPUT/FORWARD的policy都设置成DROP&lt;br>
-portal作为登录机器是不允许跑EDA软件的，所以在core的防火墙上面要阻止来自portal的license请求&lt;br>
-另外需要注意虚拟机的网络是不受iptables控制的，所以在portal上绝对绝对不要装虚拟机软件，不让网络无法管控&lt;/p>
-&lt;h3 id="etx-配置">ETX 配置
-&lt;/h3>&lt;h4 id="限制最大拷贝数">限制最大拷贝数
-&lt;/h4>&lt;p>profile -&amp;gt; general -&amp;gt; optional settings 里面添加如下配置（最大只允许拷贝512个字符)&lt;/p>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt">1
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">proxy&lt;/span>.&lt;span class="err">AllowCopyFromX=512&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h4 id="限制用户编辑profile">限制用户编辑profile
-&lt;/h4>&lt;p>如果允许用户自己编辑profile,他就可以设置一个profile允许上传和下载，这无疑是有问题的&lt;/p>
-&lt;h3 id="邮件发送">邮件发送
-&lt;/h3>&lt;p>jenkins/gitlab等都有发送邮件的需求，但是core本身是无法连接外网的，解决方法就是要借助core
-需要有一个专门的邮件账号用来发邮件（&lt;em>jarvis&lt;/em>)，这个账号只能开放smtp功能，不能开放 imap功能，这主要是为了防止有用户发完邮件又通过imap将发送邮件删除，从而销毁证据&lt;br>
-具体步骤如下&lt;/p>
-&lt;ol>
-&lt;li>在portal上面开一个邮件代理，只允许特定IP连接本地的465端口&lt;/li>
-&lt;li>在core上，只有特定用户才可以连接到core的465端口,包括以下用户
-&lt;ol>
-&lt;li>ETX 服务: root&lt;/li>
-&lt;li>jenkins服务: jenkins&lt;/li>
-&lt;/ol>
-&lt;/li>
-&lt;li>上面两个步骤是确保用户无法使用自己的邮箱发送邮件，而只能通过jarvis账号发送&lt;/li>
-&lt;li>jarvis账号会将所有内容存档，便于安全审计
-邮件代理可以用nginx处理,关键配置如下&lt;/li>
-&lt;/ol>
-&lt;div class="highlight">&lt;div class="chroma">
-&lt;table class="lntable">&lt;tr>&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code>&lt;span class="lnt"> 1
-&lt;/span>&lt;span class="lnt"> 2
-&lt;/span>&lt;span class="lnt"> 3
-&lt;/span>&lt;span class="lnt"> 4
-&lt;/span>&lt;span class="lnt"> 5
-&lt;/span>&lt;span class="lnt"> 6
-&lt;/span>&lt;span class="lnt"> 7
-&lt;/span>&lt;span class="lnt"> 8
-&lt;/span>&lt;span class="lnt"> 9
-&lt;/span>&lt;span class="lnt">10
-&lt;/span>&lt;span class="lnt">11
-&lt;/span>&lt;/code>&lt;/pre>&lt;/td>
-&lt;td class="lntd">
-&lt;pre tabindex="0" class="chroma">&lt;code class="language-apacheconf" data-lang="apacheconf">&lt;span class="line">&lt;span class="cl">&lt;span class="err">root@portal0:~&lt;/span> &lt;span class="c">#-&amp;gt; cat /etc/nginx/stream/mail_pro.conf&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">upstream&lt;/span> mailsmtp_pro {
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">server&lt;/span> smtp.qiye.aliyun.com:465;
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">}&lt;/span>
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="nb">server&lt;/span> {
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">listen&lt;/span> &lt;span class="m">465&lt;/span>;
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">proxy_connect_timeout&lt;/span> &lt;span class="m">5&lt;/span>s;
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">proxy_timeout&lt;/span> &lt;span class="m">5&lt;/span>s;
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl"> &lt;span class="nb">proxy_pass&lt;/span> mailsmtp_pro;
-&lt;/span>&lt;/span>&lt;span class="line">&lt;span class="cl">&lt;span class="err">}&lt;/span>
-&lt;/span>&lt;/span>&lt;/code>&lt;/pre>&lt;/td>&lt;/tr>&lt;/table>
-&lt;/div>
-&lt;/div>&lt;h3 id="目录夹权限">目录夹权限
-&lt;/h3>&lt;p>下面这些文件夹需要设置合适的权限保证普通用户无法看到&lt;/p>
-&lt;ul>
-&lt;li>/proj/git: 里面存放了git的database&lt;/li>
-&lt;li>/proj/xxx: 只有处于项目组xxx里面的人才能进入&lt;/li>
-&lt;li>/data/backup: 需要保证普通用户无法访问备份文件夹&lt;/li>
-&lt;/ul></description></item></channel></rss>
+&lt;a href="https://core.ic.X.com:1024" target="_blank"&gt;https://core.ic.X.com:1024&lt;/a&gt;
+&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-apacheconf" data-lang="apacheconf"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;root@core:~&lt;/span&gt; &lt;span class="c"&gt;#-&amp;gt; cat /etc/httpd/conf.d/gitlab-rewrite.conf&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;# VERSION 6 - DO NOT REMOVE THIS LINE&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;RewriteEngine&lt;/span&gt; &lt;span class="k"&gt;on&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;RewriteRule&lt;/span&gt; ^/gitlab https://core.ic.X.com:1024 [L,R=301]
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id="ldap"&gt;ldap
+&lt;/h4&gt;&lt;p&gt;修改gitlab.rb.关键配置如下&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;span class="lnt"&gt;17
+&lt;/span&gt;&lt;span class="lnt"&gt;18
+&lt;/span&gt;&lt;span class="lnt"&gt;19
+&lt;/span&gt;&lt;span class="lnt"&gt;20
+&lt;/span&gt;&lt;span class="lnt"&gt;21
+&lt;/span&gt;&lt;span class="lnt"&gt;22
+&lt;/span&gt;&lt;span class="lnt"&gt;23
+&lt;/span&gt;&lt;span class="lnt"&gt;24
+&lt;/span&gt;&lt;span class="lnt"&gt;25
+&lt;/span&gt;&lt;span class="lnt"&gt;26
+&lt;/span&gt;&lt;span class="lnt"&gt;27
+&lt;/span&gt;&lt;span class="lnt"&gt;28
+&lt;/span&gt;&lt;span class="lnt"&gt;29
+&lt;/span&gt;&lt;span class="lnt"&gt;30
+&lt;/span&gt;&lt;span class="lnt"&gt;31
+&lt;/span&gt;&lt;span class="lnt"&gt;32
+&lt;/span&gt;&lt;span class="lnt"&gt;33
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-ruby" data-lang="ruby"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;gitlab_rails&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ldap_enabled&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kp"&gt;true&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;gitlab_rails&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;prevent_ldap_sign_in&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kp"&gt;false&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="n"&gt;gitlab_rails&lt;/span&gt;&lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;ldap_servers&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;main&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;label&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;LDAP&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;host&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;core.ic.X.com&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;port&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;636&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;uid&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;uid&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;bind_dn&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;uid=dummy,cn=users,cn=accounts,dc=ic,dc=X,dc=com&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;base&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;dc=ic,dc=X,dc=com&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;password&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;password for dummy&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;encryption&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;simple_tls&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;verify_certificates&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="kp"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;smartcard_auth&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="kp"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;active_directory&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="kp"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;allow_username_or_email_login&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="kp"&gt;true&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;lowercase_usernames&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="kp"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;block_auto_created_users&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="kp"&gt;false&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;user_filter&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;memberOf=cn=staff,cn=groups,cn=accounts,dc=ic,dc=X,dc=com&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;attributes&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;username&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;uid&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;email&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;&amp;#39;Email&amp;#39;&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;name&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;cn&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;first_name&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;givenName&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;last_name&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;sn&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;## EE only&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;group_base&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;cn=groups,cn=accounts,dc=ic,dc=X,dc=com&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;admin_group&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="s1"&gt;&amp;#39;sync_ssh_keys&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="kp"&gt;false&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;配置完之后可以用如下命令进行测试&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;gitlab-rake gitlab:ladap:check
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id="migration"&gt;migration
+&lt;/h4&gt;&lt;p&gt;可以用如下的方式进行迁移&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;进入旧文件夹，git remote 解除远端reposity的绑定&lt;/li&gt;
+&lt;li&gt;git remote 添加新远端repository&lt;/li&gt;
+&lt;li&gt;git push&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="jenkins"&gt;jenkins
+&lt;/h3&gt;&lt;h4 id="ssl-1"&gt;ssl
+&lt;/h4&gt;&lt;p&gt;jenkins用的是java那一套，所以ssl的支持稍微麻烦一点。
+CA: &lt;strong&gt;update-ca-trust&lt;/strong&gt; 本身就已经产生了java需要的CA,具体的路径是 &lt;strong&gt;/etc/pki/ca-trust/extracted/java/cacerts&lt;/strong&gt;
+https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,其中changeit是证书导出的时候设置的密码&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-shell" data-lang="shell"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;keytool -importkeystore -srcstorepass changeit -deststorepass changeit -srckeystore ssl.pfx -srcstoretype pkcs12 -destkeystore jenkins.jks -deststoretype JKS
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;修改配置文件 &lt;strong&gt;/usr/lib/systemd/system/jenkins.service&lt;/strong&gt;，关键配置如下:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;span class="lnt"&gt;17
+&lt;/span&gt;&lt;span class="lnt"&gt;18
+&lt;/span&gt;&lt;span class="lnt"&gt;19
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-apacheconf" data-lang="apacheconf"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;root@core:~&lt;/span&gt; &lt;span class="c"&gt;#-&amp;gt; cat /usr/lib/systemd/system/jenkins.service|grep -v &amp;#39;^#&amp;#39;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;#jenkins is picky on java version, must use version 17&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;Environment=&amp;#34;JAVA_HOME=/usr/java/jdk-17&lt;/span&gt;.&lt;span class="err"&gt;0&lt;/span&gt;.&lt;span class="err"&gt;5&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;Environment=&amp;#34;JENKINS_JAVA_CMD=/usr/java/jdk-17&lt;/span&gt;.&lt;span class="err"&gt;0&lt;/span&gt;.&lt;span class="err"&gt;5/bin/java&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c"&gt;#load the CA so we can use ldaps &lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;Environment=&amp;#34;JAVA_OPTS=-Djava&lt;/span&gt;.&lt;span class="err"&gt;awt&lt;/span&gt;.&lt;span class="err"&gt;headless=&lt;/span&gt;&lt;span class="nb"&gt;true&lt;/span&gt; -Djavax.net.ssl.trustStore=/home/jenkins/config/cacerts -Djavax.net.ssl.trustStorePassword=changeit&lt;span class="s2"&gt;&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="s2"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="s2"&gt;#turn off http and enable https
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="s2"&gt;Environment=&amp;#34;&lt;/span&gt;JENKINS_PORT=-1&lt;span class="s2"&gt;&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="s2"&gt;Environment=&amp;#34;&lt;/span&gt;JENKINS_HTTPS_LISTEN_ADDRESS=10.0.2.100&lt;span class="s2"&gt;&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="s2"&gt;Environment=&amp;#34;&lt;/span&gt;JENKINS_HTTPS_PORT=8888&lt;span class="s2"&gt;&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="s2"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="s2"&gt;#specify the https ceritificate
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="s2"&gt;Environment=&amp;#34;&lt;/span&gt;JENKINS_HTTPS_KEYSTORE=/home/jenkins/config/jenkins.jks&lt;span class="s2"&gt;&amp;#34;
+&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="s2"&gt;Environment=&amp;#34;&lt;/span&gt;JENKINS_HTTPS_KEYSTORE_PASSWORD=changeit&lt;span class="err"&gt;&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;[Install]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;WantedBy=multi-user&lt;/span&gt;.&lt;span class="nb"&gt;target&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id="ldap-1"&gt;ldap
+&lt;/h4&gt;&lt;p&gt;需要安装ldap插件，&lt;strong&gt;/home/jenkins/config.xml&lt;/strong&gt; 里面的关键配置信息如下&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;span class="lnt"&gt;17
+&lt;/span&gt;&lt;span class="lnt"&gt;18
+&lt;/span&gt;&lt;span class="lnt"&gt;19
+&lt;/span&gt;&lt;span class="lnt"&gt;20
+&lt;/span&gt;&lt;span class="lnt"&gt;21
+&lt;/span&gt;&lt;span class="lnt"&gt;22
+&lt;/span&gt;&lt;span class="lnt"&gt;23
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-xml" data-lang="xml"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nt"&gt;&amp;lt;securityRealm&lt;/span&gt; &lt;span class="na"&gt;class=&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;hudson.security.LDAPSecurityRealm&amp;#34;&lt;/span&gt; &lt;span class="na"&gt;plugin=&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;ldap@682.v7b_544c9d1512&amp;#34;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;disableMailAddressResolver&amp;gt;&lt;/span&gt;false&lt;span class="nt"&gt;&amp;lt;/disableMailAddressResolver&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;configurations&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;jenkins.security.plugins.ldap.LDAPConfiguration&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;server&amp;gt;&lt;/span&gt;ldaps://core.ic.X.com&lt;span class="nt"&gt;&amp;lt;/server&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;rootDN&amp;gt;&lt;/span&gt;dc=ic,dc=X,dc=com&lt;span class="nt"&gt;&amp;lt;/rootDN&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;inhibitInferRootDN&amp;gt;&lt;/span&gt;false&lt;span class="nt"&gt;&amp;lt;/inhibitInferRootDN&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;userSearchBase&amp;gt;&lt;/span&gt;cn=users,cn=accounts&lt;span class="nt"&gt;&amp;lt;/userSearchBase&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;userSearch&amp;gt;&lt;/span&gt;uid={0}&lt;span class="nt"&gt;&amp;lt;/userSearch&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;groupMembershipStrategy&lt;/span&gt; &lt;span class="na"&gt;class=&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;jenkins.security.plugins.ldap.FromGroupSearchLDAPGroupMembershipStrategy&amp;#34;&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;filter&amp;gt;&amp;lt;/filter&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;/groupMembershipStrategy&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;managerDN&amp;gt;&lt;/span&gt;uid=dummy,cn=users,cn=accounts,dc=ic,dc=X,dc=com&lt;span class="nt"&gt;&amp;lt;/managerDN&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;managerPasswordSecret&amp;gt;&lt;/span&gt;{dummy_password_hash}&lt;span class="nt"&gt;&amp;lt;/managerPasswordSecret&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;displayNameAttributeName&amp;gt;&lt;/span&gt;displayname&lt;span class="nt"&gt;&amp;lt;/displayNameAttributeName&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;mailAddressAttributeName&amp;gt;&lt;/span&gt;mail&lt;span class="nt"&gt;&amp;lt;/mailAddressAttributeName&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;ignoreIfUnavailable&amp;gt;&lt;/span&gt;false&lt;span class="nt"&gt;&amp;lt;/ignoreIfUnavailable&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;/jenkins.security.plugins.ldap.LDAPConfiguration&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;/configurations&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;userIdStrategy&lt;/span&gt; &lt;span class="na"&gt;class=&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;jenkins.model.IdStrategy$CaseInsensitive&amp;#34;&lt;/span&gt;&lt;span class="nt"&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;groupIdStrategy&lt;/span&gt; &lt;span class="na"&gt;class=&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;jenkins.model.IdStrategy$CaseInsensitive&amp;#34;&lt;/span&gt;&lt;span class="nt"&gt;/&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;disableRolePrefixing&amp;gt;&lt;/span&gt;true&lt;span class="nt"&gt;&amp;lt;/disableRolePrefixing&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;/securityRealm&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;如果因为某些原因导致更改完了登录不了jenkins ( 比如权限忘记配置了)，只需要将下面的配置从true改为false即可&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-xml" data-lang="xml"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nt"&gt;&amp;lt;useSecurity&amp;gt;&lt;/span&gt;true&lt;span class="nt"&gt;&amp;lt;/useSecurity&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="etx"&gt;ETX
+&lt;/h3&gt;&lt;p&gt;这是一个服务器登录软件。推荐
+&lt;a href="https://www.opentext.nl/products-and-solutions/products/specialty-technologies/connectivity/exceed-ondemand" target="_blank"&gt;EXT&lt;/a&gt;
+，吊打一切牛鬼蛇神，主要优势有以下几个&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;只用开放一个端口即可，这样就方便进行管理。vnc这种每个用户都开一个端口的方式一是不方便管理，而是有漏洞，用户要进行脱库操作很容易。&lt;/li&gt;
+&lt;li&gt;可以对上传下载权限进行单独管理，一般只允许上传，不允许下载&lt;/li&gt;
+&lt;li&gt;可以限制从服务器到本地复制黏贴的字符个数，有效的防止了用户通过&lt;strong&gt;CTRL+C&lt;/strong&gt; &lt;strong&gt;CTRL+V&lt;/strong&gt; 的方式拷贝代码到本地&lt;/li&gt;
+&lt;li&gt;集成ldap认证，可对用户登录以及可见的profile做限制
+当然他的缺点也是显而易见的，那就是需要花钱购买。这公司的销售人员也是非常了解国情，默认都是提供买断的license服务，一次购买，终身可用，然后单个license的价格还是不便宜。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4 id="server"&gt;server
+&lt;/h4&gt;&lt;p&gt;建议安装在core上面，然后通过端口映射的方式映射到portal的8443端口&lt;/p&gt;
+&lt;h4 id="node"&gt;node
+&lt;/h4&gt;&lt;p&gt;建议安装在portal上面，默认端口是5510
+添加node的时候选择10.0.2.1,端口5510,然后再client IP里面进行重映射，比如192.168.5.100:5510&lt;/p&gt;
+&lt;h4 id="ssl-2"&gt;ssl
+&lt;/h4&gt;&lt;p&gt;如果要增加ssl支持，需要修改 &lt;strong&gt;$INSTALL_DIR/data/ssl&lt;/strong&gt; 里面的 &lt;strong&gt;server.key&lt;/strong&gt; 和&lt;strong&gt;server.crt&lt;/strong&gt;. 可以用前文提到的xca工具生成，懒人的话建议生成通配符证书即可。
+另外其实在linux上面做ETX的多开很容易，文件夹复制黏贴改个名字就行了。Windows node 复制黏贴比较麻烦，暂时还没有花精力去搞。至于为何要多开？那当然是解决license个数不足的问题了。&lt;/p&gt;
+&lt;h3 id="flexlm"&gt;flexlm
+&lt;/h3&gt;&lt;p&gt;几乎所有的eda工具都是用flexlm来管理的，这个和谐方式也是各式各样。有一些注意事项&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;允许在同一个端口上起多个vendor的license daemon,比如你可以把不同家的license文件里面的端口都改成一样的，然后lmgrd一起启动&lt;/li&gt;
+&lt;li&gt;一些和谐版的license daemon会有相互打架的情况，所以1的前提就不成立了&lt;/li&gt;
+&lt;li&gt;有些vendor daemon对网卡名字有特别要求，一定要求是 &lt;em&gt;eth&lt;/em&gt; 开头，比如TSMC&lt;/li&gt;
+&lt;li&gt;license文件可以进行复制操作，比如你只买了10个正版license，如何扩展成100个，土鳖一点的方法就是用虚拟机多开，修改MAC地址。但是其实不用这么麻烦的，你在一台机器上也有办法实现开N个相同的vendor daemon的。
+由于可能不是那么众所周知的原因，宝岛台湾的一些工具是不使用flexlm管理的。个人推测一方面是成本考虑，另一方面是因为他们知道flexlm的license很容易被和谐，又不像大厂可以承受被破解的代价，所以就自己开发了一套软件授权管理工具。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id="mirror"&gt;mirror
+&lt;/h3&gt;&lt;p&gt;在core上面设置centos的mirror,portal通过rsync的方式将外部的mirror同步到core上
+一个简单的用perl写的同步脚本如下&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;span class="lnt"&gt;17
+&lt;/span&gt;&lt;span class="lnt"&gt;18
+&lt;/span&gt;&lt;span class="lnt"&gt;19
+&lt;/span&gt;&lt;span class="lnt"&gt;20
+&lt;/span&gt;&lt;span class="lnt"&gt;21
+&lt;/span&gt;&lt;span class="lnt"&gt;22
+&lt;/span&gt;&lt;span class="lnt"&gt;23
+&lt;/span&gt;&lt;span class="lnt"&gt;24
+&lt;/span&gt;&lt;span class="lnt"&gt;25
+&lt;/span&gt;&lt;span class="lnt"&gt;26
+&lt;/span&gt;&lt;span class="lnt"&gt;27
+&lt;/span&gt;&lt;span class="lnt"&gt;28
+&lt;/span&gt;&lt;span class="lnt"&gt;29
+&lt;/span&gt;&lt;span class="lnt"&gt;30
+&lt;/span&gt;&lt;span class="lnt"&gt;31
+&lt;/span&gt;&lt;span class="lnt"&gt;32
+&lt;/span&gt;&lt;span class="lnt"&gt;33
+&lt;/span&gt;&lt;span class="lnt"&gt;34
+&lt;/span&gt;&lt;span class="lnt"&gt;35
+&lt;/span&gt;&lt;span class="lnt"&gt;36
+&lt;/span&gt;&lt;span class="lnt"&gt;37
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-perl" data-lang="perl"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="ch"&gt;#!/usr/bin/perl&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;use&lt;/span&gt; &lt;span class="nn"&gt;strict&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;use&lt;/span&gt; &lt;span class="nn"&gt;warnings&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;my&lt;/span&gt; &lt;span class="nv"&gt;$lock_file&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;/run/lock/subsys/repo_rsync&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;exit&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt; &lt;span class="nv"&gt;$lock_file&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;#Set the PATH&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nv"&gt;$ENV&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;PATH&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;/bin:/usr/bin:/sbin&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;system&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;touch $lock_file&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;my&lt;/span&gt; &lt;span class="nv"&gt;$base_path&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;/repo/centos&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;my&lt;/span&gt; &lt;span class="nv"&gt;$version&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;7.9.2009&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;my&lt;/span&gt; &lt;span class="nv"&gt;@parts&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sx"&gt;qw ( &lt;/span&gt;&lt;span class="n"&gt;centosplus&lt;/span&gt; &lt;span class="n"&gt;os&lt;/span&gt; &lt;span class="n"&gt;updates&lt;/span&gt; &lt;span class="n"&gt;extras&lt;/span&gt; &lt;span class="n"&gt;contrib&lt;/span&gt; &lt;span class="n"&gt;epel&lt;/span&gt; &lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;#my @parts = qw ( epel );&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;#Invoke the rsync to update the repo&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;#For rpmforge, use this one rsync://ftp-stud.fht-esslingen.de/dag&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;foreach&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;@parts&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;next&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nv"&gt;$_&lt;/span&gt; &lt;span class="ow"&gt;eq&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;contrib&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="nv"&gt;$_&lt;/span&gt; &lt;span class="ow"&gt;eq&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;epel&amp;#39;&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;system&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;rsync -avSHP --exclude &amp;#39;debug&amp;#39; --exclude &amp;#39;repodata&amp;#39; --exclude &amp;#39;repoview&amp;#39; --delete --delete-excluded rsync://mirror.sjtu.edu.cn/fedora/epel/7/x86_64/ $base_path/$version/$_/x86_64/Packages/&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;&lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;#system( &amp;#34;rsync -avSHP --delete rsync.mirrors.ustc.edu.cn::repo/centos/$version/$_/x86_64/Packages/ $base_path/$version/$_/x86_64/Packages/&amp;#34;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="c1"&gt;#update: need to remove the repo prefix&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;system&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="s"&gt;&amp;#34;rsync -avSHP --delete rsync.mirrors.ustc.edu.cn::centos/$version/$_/x86_64/Packages/ $base_path/$version/$_/x86_64/Packages/&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="c1"&gt;#Invoke createrepo&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="k"&gt;foreach&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nv"&gt;@parts&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;system&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#34;ssh core createrepo --workers 16 $base_path/$version/$_/x86_64&amp;#34;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;unlink&lt;/span&gt; &lt;span class="nv"&gt;$lock_file&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;在core上面讲mirror通过https的形式提供给其他人，具体的方法如下&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;span class="lnt"&gt;2
+&lt;/span&gt;&lt;span class="lnt"&gt;3
+&lt;/span&gt;&lt;span class="lnt"&gt;4
+&lt;/span&gt;&lt;span class="lnt"&gt;5
+&lt;/span&gt;&lt;span class="lnt"&gt;6
+&lt;/span&gt;&lt;span class="lnt"&gt;7
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-apacheconf" data-lang="apacheconf"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;root@core:&lt;/span&gt; &lt;span class="c"&gt;#-&amp;gt; cat /etc/httpd/conf.d/repo.conf&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;Alias&lt;/span&gt; &lt;span class="sx"&gt;/centos&lt;/span&gt; &lt;span class="s2"&gt;&amp;#34;/repo/centos&amp;#34;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nt"&gt;&amp;lt;Directory&lt;/span&gt; &lt;span class="s"&gt;/repo/centos&lt;/span&gt;&lt;span class="nt"&gt;&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;Options&lt;/span&gt; Indexes FollowSymLinks MultiViews
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;AllowOverride&lt;/span&gt; &lt;span class="k"&gt;all&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;Require&lt;/span&gt; &lt;span class="k"&gt;all&lt;/span&gt; granted
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nt"&gt;&amp;lt;/Directory&amp;gt;&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;p&gt;最后修改机器的更新源为core&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;span class="lnt"&gt;12
+&lt;/span&gt;&lt;span class="lnt"&gt;13
+&lt;/span&gt;&lt;span class="lnt"&gt;14
+&lt;/span&gt;&lt;span class="lnt"&gt;15
+&lt;/span&gt;&lt;span class="lnt"&gt;16
+&lt;/span&gt;&lt;span class="lnt"&gt;17
+&lt;/span&gt;&lt;span class="lnt"&gt;18
+&lt;/span&gt;&lt;span class="lnt"&gt;19
+&lt;/span&gt;&lt;span class="lnt"&gt;20
+&lt;/span&gt;&lt;span class="lnt"&gt;21
+&lt;/span&gt;&lt;span class="lnt"&gt;22
+&lt;/span&gt;&lt;span class="lnt"&gt;23
+&lt;/span&gt;&lt;span class="lnt"&gt;24
+&lt;/span&gt;&lt;span class="lnt"&gt;25
+&lt;/span&gt;&lt;span class="lnt"&gt;26
+&lt;/span&gt;&lt;span class="lnt"&gt;27
+&lt;/span&gt;&lt;span class="lnt"&gt;28
+&lt;/span&gt;&lt;span class="lnt"&gt;29
+&lt;/span&gt;&lt;span class="lnt"&gt;30
+&lt;/span&gt;&lt;span class="lnt"&gt;31
+&lt;/span&gt;&lt;span class="lnt"&gt;32
+&lt;/span&gt;&lt;span class="lnt"&gt;33
+&lt;/span&gt;&lt;span class="lnt"&gt;34
+&lt;/span&gt;&lt;span class="lnt"&gt;35
+&lt;/span&gt;&lt;span class="lnt"&gt;36
+&lt;/span&gt;&lt;span class="lnt"&gt;37
+&lt;/span&gt;&lt;span class="lnt"&gt;38
+&lt;/span&gt;&lt;span class="lnt"&gt;39
+&lt;/span&gt;&lt;span class="lnt"&gt;40
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-apacheconf" data-lang="apacheconf"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;root@core:&lt;/span&gt; &lt;span class="c"&gt;#-&amp;gt; cat /etc/yum.repos.d/local.repo&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;[local-base]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;name=local-$&lt;/span&gt;&lt;span class="nb"&gt;releasever&lt;/span&gt; - Base
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;baseurl=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/os/$basearch/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgkey=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgcheck=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;enabled=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;[local-updates]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;name=local-$&lt;/span&gt;&lt;span class="nb"&gt;releasever&lt;/span&gt; - Updates
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;baseurl=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/updates/$basearch/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgkey=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgcheck=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;enabled=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;[local-extras]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;name=local-$&lt;/span&gt;&lt;span class="nb"&gt;releasever&lt;/span&gt; - Extras
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;baseurl=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/extras/$basearch/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgkey=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgcheck=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;enabled=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;[local-centosplus]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;name=local-$&lt;/span&gt;&lt;span class="nb"&gt;releasever&lt;/span&gt; - Plus
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;baseurl=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/centosplus/$basearch/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgkey=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/RPM-GPG-CentOS-7&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgcheck=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;enabled=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;[local-contrib]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;name=local-$&lt;/span&gt;&lt;span class="nb"&gt;releasever&lt;/span&gt; - Contrib
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;baseurl=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/contrib/$basearch/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgcheck=0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;enabled=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;[local-epel]&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;name=local-$&lt;/span&gt;&lt;span class="nb"&gt;releasever&lt;/span&gt; - Epel
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;baseurl=https://core&lt;/span&gt;.&lt;span class="err"&gt;ic&lt;/span&gt;.&lt;span class="err"&gt;X&lt;/span&gt;.&lt;span class="err"&gt;com/centos/$releasever/epel/$basearch/&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;gpgcheck=0&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;enabled=1&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h2 id="安全设置"&gt;安全设置
+&lt;/h2&gt;&lt;h3 id="selinux"&gt;selinux
+&lt;/h3&gt;&lt;p&gt;这个东西很好，但是也很麻烦，如果不是很会折腾，建议关闭:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;编辑 /etc/sysconfig/selinux, 将里面的SELINUX更改成disabled，然后重启&lt;/p&gt;&lt;/blockquote&gt;
+&lt;h3 id="ssh限制"&gt;ssh限制
+&lt;/h3&gt;&lt;p&gt;需要在/etc/ssh/sshd_config里面做如下配置&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;普通用户关闭ssh登录权限&lt;/li&gt;
+&lt;li&gt;打开core上的git登录权限，这是为了使用ssh进行git的checkout&lt;/li&gt;
+&lt;li&gt;只允许基于ssh key的登录方式，这是为了防止MTIM攻击&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3 id="防火墙配置"&gt;防火墙配置
+&lt;/h3&gt;&lt;p&gt;内网的机器可以把防火墙都关掉&lt;br&gt;
+portal上面的防火墙只开放必要的端口，INPUT/OUTPUT/FORWARD的policy都设置成DROP&lt;br&gt;
+portal作为登录机器是不允许跑EDA软件的，所以在core的防火墙上面要阻止来自portal的license请求&lt;br&gt;
+另外需要注意虚拟机的网络是不受iptables控制的，所以在portal上绝对绝对不要装虚拟机软件，不让网络无法管控&lt;/p&gt;
+&lt;h3 id="etx-配置"&gt;ETX 配置
+&lt;/h3&gt;&lt;h4 id="限制最大拷贝数"&gt;限制最大拷贝数
+&lt;/h4&gt;&lt;p&gt;profile -&amp;gt; general -&amp;gt; optional settings 里面添加如下配置（最大只允许拷贝512个字符)&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt;1
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-apacheconf" data-lang="apacheconf"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;proxy&lt;/span&gt;.&lt;span class="err"&gt;AllowCopyFromX=512&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h4 id="限制用户编辑profile"&gt;限制用户编辑profile
+&lt;/h4&gt;&lt;p&gt;如果允许用户自己编辑profile,他就可以设置一个profile允许上传和下载，这无疑是有问题的&lt;/p&gt;
+&lt;h3 id="邮件发送"&gt;邮件发送
+&lt;/h3&gt;&lt;p&gt;jenkins/gitlab等都有发送邮件的需求，但是core本身是无法连接外网的，解决方法就是要借助core
+需要有一个专门的邮件账号用来发邮件（&lt;em&gt;jarvis&lt;/em&gt;)，这个账号只能开放smtp功能，不能开放 imap功能，这主要是为了防止有用户发完邮件又通过imap将发送邮件删除，从而销毁证据&lt;br&gt;
+具体步骤如下&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;在portal上面开一个邮件代理，只允许特定IP连接本地的465端口&lt;/li&gt;
+&lt;li&gt;在core上，只有特定用户才可以连接到core的465端口,包括以下用户
+&lt;ol&gt;
+&lt;li&gt;ETX 服务: root&lt;/li&gt;
+&lt;li&gt;jenkins服务: jenkins&lt;/li&gt;
+&lt;/ol&gt;
+&lt;/li&gt;
+&lt;li&gt;上面两个步骤是确保用户无法使用自己的邮箱发送邮件，而只能通过jarvis账号发送&lt;/li&gt;
+&lt;li&gt;jarvis账号会将所有内容存档，便于安全审计
+邮件代理可以用nginx处理,关键配置如下&lt;/li&gt;
+&lt;/ol&gt;
+&lt;div class="highlight"&gt;&lt;div class="chroma"&gt;
+&lt;table class="lntable"&gt;&lt;tr&gt;&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code&gt;&lt;span class="lnt"&gt; 1
+&lt;/span&gt;&lt;span class="lnt"&gt; 2
+&lt;/span&gt;&lt;span class="lnt"&gt; 3
+&lt;/span&gt;&lt;span class="lnt"&gt; 4
+&lt;/span&gt;&lt;span class="lnt"&gt; 5
+&lt;/span&gt;&lt;span class="lnt"&gt; 6
+&lt;/span&gt;&lt;span class="lnt"&gt; 7
+&lt;/span&gt;&lt;span class="lnt"&gt; 8
+&lt;/span&gt;&lt;span class="lnt"&gt; 9
+&lt;/span&gt;&lt;span class="lnt"&gt;10
+&lt;/span&gt;&lt;span class="lnt"&gt;11
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;
+&lt;td class="lntd"&gt;
+&lt;pre tabindex="0" class="chroma"&gt;&lt;code class="language-apacheconf" data-lang="apacheconf"&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;root@portal0:~&lt;/span&gt; &lt;span class="c"&gt;#-&amp;gt; cat /etc/nginx/stream/mail_pro.conf&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;upstream&lt;/span&gt; mailsmtp_pro {
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;server&lt;/span&gt; smtp.qiye.aliyun.com:465;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="nb"&gt;server&lt;/span&gt; {
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;listen&lt;/span&gt; &lt;span class="m"&gt;465&lt;/span&gt;;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;proxy_connect_timeout&lt;/span&gt; &lt;span class="m"&gt;5&lt;/span&gt;s;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;proxy_timeout&lt;/span&gt; &lt;span class="m"&gt;5&lt;/span&gt;s;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt; &lt;span class="nb"&gt;proxy_pass&lt;/span&gt; mailsmtp_pro;
+&lt;/span&gt;&lt;/span&gt;&lt;span class="line"&gt;&lt;span class="cl"&gt;&lt;span class="err"&gt;}&lt;/span&gt;
+&lt;/span&gt;&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;
+&lt;/div&gt;
+&lt;/div&gt;&lt;h3 id="目录夹权限"&gt;目录夹权限
+&lt;/h3&gt;&lt;p&gt;下面这些文件夹需要设置合适的权限保证普通用户无法看到&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;/proj/git: 里面存放了git的database&lt;/li&gt;
+&lt;li&gt;/proj/xxx: 只有处于项目组xxx里面的人才能进入&lt;/li&gt;
+&lt;li&gt;/data/backup: 需要保证普通用户无法访问备份文件夹&lt;/li&gt;
+&lt;/ul&gt;</description></item></channel></rss>
