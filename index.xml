@@ -1241,7 +1241,8 @@ https证书: 用xca生成p12格式的证书(.pfx),然后用如下命令转换,�
 &lt;/h2&gt;&lt;h3 id="selinux"&gt;selinux
 &lt;/h3&gt;&lt;p&gt;这个东西很好，但是也很麻烦，如果不是很会折腾，建议关闭:&lt;/p&gt;
 &lt;blockquote&gt;
-&lt;p&gt;编辑 /etc/sysconfig/selinux, 将里面的SELINUX更改成disabled，然后重启&lt;/p&gt;&lt;/blockquote&gt;
+&lt;p&gt;编辑 /etc/sysconfig/selinux, 将里面的SELINUX更改成disabled，然后重启&lt;/p&gt;
+&lt;/blockquote&gt;
 &lt;h3 id="ssh限制"&gt;ssh限制
 &lt;/h3&gt;&lt;p&gt;需要在/etc/ssh/sshd_config里面做如下配置&lt;/p&gt;
 &lt;ul&gt;
