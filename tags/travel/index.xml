@@ -1,4 +1,80 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Travel on Free at last</title><link>https://churchmice.github.io/tags/travel/</link><description>Recent content in Travel on Free at last</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>All Rights Reserved</copyright><lastBuildDate>Sun, 19 May 2024 16:12:10 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/tags/travel/index.xml" rel="self" type="application/rss+xml"/><item><title>SECDEC</title><link>https://churchmice.github.io/p/secdec/</link><pubDate>Sun, 19 May 2024 16:12:10 +0800</pubDate><guid>https://churchmice.github.io/p/secdec/</guid><description>&lt;h1 id="介绍"&gt;介绍
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Travel on Free at last</title><link>https://churchmice.github.io/tags/travel/</link><description>Recent content in Travel on Free at last</description><generator>Hugo -- gohugo.io</generator><language>en-us</language><copyright>All Rights Reserved</copyright><lastBuildDate>Fri, 13 Nov 2026 02:07:03 +0800</lastBuildDate><atom:link href="https://churchmice.github.io/tags/travel/index.xml" rel="self" type="application/rss+xml"/><item><title>一加15本地化</title><link>https://churchmice.github.io/p/%E4%B8%80%E5%8A%A015%E6%9C%AC%E5%9C%B0%E5%8C%96/</link><pubDate>Fri, 13 Nov 2026 02:07:03 +0800</pubDate><guid>https://churchmice.github.io/p/%E4%B8%80%E5%8A%A015%E6%9C%AC%E5%9C%B0%E5%8C%96/</guid><description>&lt;h1 id="前言"&gt;前言
+&lt;/h1&gt;&lt;p&gt;买了一个国行的一加15,型号是PLK110,但是众所周知的原因，国行系统不干净，所以解锁BL之后刷成了欧版,型号变成了CPH2747&lt;/p&gt;
+&lt;h1 id="伪回锁"&gt;伪回锁
+&lt;/h1&gt;&lt;p&gt;一加15的处理器有个漏洞，本质就是bootrom没有验签就加载了abl(android boot loader),那这个就可以做很多文章了，参考下面的文章进行伪回锁操作
+&lt;a href="https://xdaforums.com/t/efisp-root-gbl_root_canoe-fake-locked-bl-superfastboot-bds-8-gen-5-8-elite-gen-5.4786301/" target="_blank"&gt;https://xdaforums.com/t/efisp-root-gbl_root_canoe-fake-locked-bl-superfastboot-bds-8-gen-5-8-elite-gen-5.4786301/&lt;/a&gt;
+伪回锁完了之后可以实现的效果是&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;谷歌三绿&lt;/li&gt;
+&lt;li&gt;soter key 正常&lt;/li&gt;
+&lt;li&gt;wide v1 key 正常(需要使用如下模块,具体参考
+&lt;a href="https://xdaforums.com/t/mod-kernelsu-oneplus-15-widevine-l1-fix.4800377/" target="_blank"&gt;https://xdaforums.com/t/mod-kernelsu-oneplus-15-widevine-l1-fix.4800377/&lt;/a&gt;
+)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="本地化"&gt;本地化
+&lt;/h1&gt;&lt;h2 id="钱包"&gt;钱包
+&lt;/h2&gt;&lt;p&gt;升级成coloros17 EU版本之后其实钱包简单多了，步骤如下&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;用brevent冻结如下应用
+&lt;ul&gt;
+&lt;li&gt;com.oneplus.account,对应kekeusercenteraccount&lt;/li&gt;
+&lt;li&gt;com.oneplus.membership,对应red cable club&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;从coloros 17国内版本的my_stock.img里面提取如下apk，并安装
+&lt;ul&gt;
+&lt;li&gt;KeKeMarket,对应的其实就是应用市场&lt;/li&gt;
+&lt;li&gt;KeKeUserCenterAccount， 对应的就是oppo账号&lt;/li&gt;
+&lt;li&gt;KeKePay,对应的就是钱包,这个可以在应用市场下载&lt;/li&gt;
+&lt;li&gt;银联可信组件(com.unionpay.tsmservice)，这个可以在应用市场下载&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;安装wallefix4oos,但是其实只需要用到针对特定包名改机型的功能
+&lt;ul&gt;
+&lt;li&gt;/data/adb/wallet/spoof_vars,用于更改机型
+&lt;ul&gt;
+&lt;li&gt;PLK110&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;/data/adb/wallet/target.txt,用于指定哪些包需要加入
+&lt;ul&gt;
+&lt;li&gt;com.heytap.market&lt;/li&gt;
+&lt;li&gt;com.com.finshell.wallet&lt;/li&gt;
+&lt;li&gt;com.unionpay.tsmservice&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;删除 /data/system/package_cache/xxxx/ 下面的文件(这里注意这个xxxx文件夹是一个随机值,不要把xxxxx这个删掉了)，然后重启&lt;/li&gt;
+&lt;li&gt;重启之后就可以正常登录一加的国内账号，钱包使用也一切正常
+所有相关文件都可以从这里下载
+链接:
+&lt;a href="https://pan.baidu.com/s/1MJz4CpF1k677Intw0h3Vsg?pwd=sap2" target="_blank"&gt;https://pan.baidu.com/s/1MJz4CpF1k677Intw0h3Vsg?pwd=sap2&lt;/a&gt;
+提取码: sap2&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id="微信指纹"&gt;微信指纹
+&lt;/h2&gt;&lt;p&gt;虽然soter key没有损坏，但是腾讯是针对机型做认证的，把下面这几个包也加入到target.txt就可以了&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;com.tencent.mm&lt;/li&gt;
+&lt;li&gt;com.webank.wemoney&lt;/li&gt;
+&lt;li&gt;com.tencent.soter.soterserver
+重启之后就可以在微众银行和微信里面正常开启指纹了&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1 id="后续升级"&gt;后续升级
+&lt;/h1&gt;&lt;p&gt;这个还没有试过，但是做法如下&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;下载全量包&lt;/li&gt;
+&lt;li&gt;使用系统的local update安装，但是不要重启&lt;/li&gt;
+&lt;li&gt;打开Canoe boot manager模块，用webuiX
+&lt;ul&gt;
+&lt;li&gt;On the overview tab chose OTA - Flash to other slot&lt;/li&gt;
+&lt;li&gt;On the next step, review your choice needed, give the app the ABL stock file extracted from the full zip OTA update&lt;/li&gt;
+&lt;li&gt;Click prepare and review then apply and let it finish, do not reboot from there&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;ksu install to inactive slot&lt;/li&gt;
+&lt;li&gt;重启&lt;/li&gt;
+&lt;/ul&gt;</description></item><item><title>SECDEC</title><link>https://churchmice.github.io/p/secdec/</link><pubDate>Sun, 19 May 2024 16:12:10 +0800</pubDate><guid>https://churchmice.github.io/p/secdec/</guid><description>&lt;h1 id="介绍"&gt;介绍
 &lt;/h1&gt;&lt;p&gt;SECDED是single error correction, double bit detection的简称，也就是可以纠正1比特的错误，能够检测2比特的错误。&lt;/p&gt;
 &lt;h1 id="hamming-code"&gt;Hamming Code
 &lt;/h1&gt;&lt;p&gt;原理是借助了hamming code,distance是3，也就是说任意两个codeword之间的差距起码是3，hamming distance的计算方法就是对比两个codeword不一样的地方，并进行累加&lt;/p&gt;
